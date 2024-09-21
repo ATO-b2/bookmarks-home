@@ -1,4 +1,4 @@
-function bookmark(url: string, img: string, name: string) {
+function Bookmark(url: string, img: string, name: string) {
     return(
         <a class="bookmark" href={url}>
             <img src={img}></img>
@@ -7,7 +7,7 @@ function bookmark(url: string, img: string, name: string) {
     );
 }
 
-function folder(children: any, name: string) {
+function Folder(children: any, name: string) {
     return(
         <div class="folder">
             <span>{name}</span>
