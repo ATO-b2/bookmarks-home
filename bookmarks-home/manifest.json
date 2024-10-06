@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Test Manifest",
+    "name": "Beyond the Bar",
     "version": "0.0.1",
     "description": "A \"Better Bookmarks Page\" that allows for more freedom through page manipulation to display bookmarks in an easier to access manner.",
     "icons": {
