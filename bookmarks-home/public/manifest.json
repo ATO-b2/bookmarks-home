@@ -4,17 +4,15 @@
   "version": "0.0.1",
   "description": "A \"Better Bookmarks Page\" that allows for more freedom through page manipulation to display bookmarks in an easier to access manner.",
   "chrome_url_overrides" : {
-    "newtab": "tab.html"
+    "newtab": "index.html"
   },
   "icons": {
-    "32":  "icons/icon-32.png",
-    "48":  "icons/icon-48.png",
-    "128": "icons/icon-128.png",
-  "author": "Owen Howell, Tyler Ferarri, Ariel Levy; students at RIT",
-  "chrome_url_overrides" : {
-    "PAGE_TO_OVERRIDE": "bookmarks" 
-    },
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "author": "Owen Howell, Tyler Ferrari, Ariel Levy; students at RIT",
   "permissions": [
-    "bookmarks"] 
-  }
+    "bookmarks"
+  ]
 }
