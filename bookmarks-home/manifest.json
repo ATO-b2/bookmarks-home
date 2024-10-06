@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "Test Manifest",
+    "version": "0.0.1",
+    "description": "Test Manifest",
+    "icons": {
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    }
+    
+  }
+
