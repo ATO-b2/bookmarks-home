@@ -9,9 +9,13 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-chrome.bookmarks.create(
-  {'parentId': bookmarksBar.id, 'title': 'Bookmarks Extension'},
-  function(newFolder) {
-    console.log("added folder: " + newFolder.title);
-  },
-);
+chrome.bookmarks.getTree((tree) => {
+    console.log(tree)
+});
+
+// chrome.bookmarks.create(
+//     {'parentId': '0', 'title': 'Bookmarks Extension'},
+//     function (newFolder) {
+//         console.log("added folder: " + newFolder.title);
+//     },
+// );
