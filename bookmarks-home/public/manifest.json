@@ -1,15 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Bookmarks Home",
-  "description": "Your bookmarks beyond the bar",
-  "version": "0.1",
+  "name": "Beyond the Bar",
+  "version": "0.0.1",
+  "description": "A \"Better Bookmarks Page\" that allows for more freedom through page manipulation to display bookmarks in an easier to access manner.",
   "chrome_url_overrides" : {
     "newtab": "tab.html"
   },
   "icons": {
     "32":  "icons/icon-32.png",
     "48":  "icons/icon-48.png",
-    "128": "icons/icon-128.png"
-  }
+    "128": "icons/icon-128.png",
+  "author": "Owen Howell, Tyler Ferarri, Ariel Levy; students at RIT"
+  },
+  
+"extension_name": "Bookmarks Extension",
+"permissions": [
+  "bookmarks"
+]
 }
-
