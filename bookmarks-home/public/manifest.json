@@ -10,11 +10,11 @@
     "32":  "icons/icon-32.png",
     "48":  "icons/icon-48.png",
     "128": "icons/icon-128.png",
-  "author": "Owen Howell, Tyler Ferarri, Ariel Levy; students at RIT"
-  },
-  
-"extension_name": "Bookmarks Extension",
-"permissions": [
-  "bookmarks"
-]
+  "author": "Owen Howell, Tyler Ferarri, Ariel Levy; students at RIT",
+  "chrome_url_overrides" : {
+    "PAGE_TO_OVERRIDE": "bookmarks" 
+    },
+  "permissions": [
+    "bookmarks"] 
+  }
 }
