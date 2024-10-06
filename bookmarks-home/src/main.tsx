@@ -9,3 +9,9 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
+chrome.bookmarks.create(
+  {'parentId': bookmarksBar.id, 'title': 'Bookmarks Extension'},
+  function(newFolder) {
+    console.log("added folder: " + newFolder.title);
+  },
+);
