@@ -1,14 +1,19 @@
-interface FolderProps {
-    name: string;
-    children?: React.ReactNode;
-}
+import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+import Bookmark from "./Bookmark.tsx";
 
-function Folder (props: FolderProps) {
+function Folder (props: {data: BookmarkTreeNode}) {
     return (
         <div className="folder">
-            <span>{props.name}</span>
+            <span>{props.data.title}</span>
             <div>
-                {props.children}
+                {
+                    props.data.children &&
+                    props.data.children.map(child => {
+                        return child.children
+                            ? <Folder data={child} />
+                            : <Bookmark data={child} />
+                    })
+                }
             </div>
         </div>
     )
