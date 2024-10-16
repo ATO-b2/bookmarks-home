@@ -8,11 +8,11 @@ function Folder (props: {data: BookmarkTreeNode}) {
             <div>
                 {
                     props.data.children &&
-                    props.data.children.map(child => {
-                        return child.children
+                    props.data.children.map(child =>
+                        child.children
                             ? <Folder data={child} />
                             : <Bookmark data={child} />
-                    })
+                    )
                 }
             </div>
         </div>
