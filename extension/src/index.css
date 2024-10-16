@@ -4,7 +4,8 @@
   border-width: 2px;
   border-style: solid;
   border-color: black;
-  padding: 5px;
+  padding: 2px;
+  margin: 2px;
 }
 
 .folder > div {
