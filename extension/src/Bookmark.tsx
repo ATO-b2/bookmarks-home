@@ -11,10 +11,12 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
 
 function faviconURL(u: string | undefined) {
     if (!u) return "";
-    u = new URL(u).origin.toString();
-    const url = new URL(chrome.runtime.getURL("/_favicon/"));
-    url.searchParams.set("pageUrl", u);
-    url.searchParams.set("size", "32");
+    u = new URL(u).hostname.toString();
+    // const url = new URL(`https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${u}&size=128`)
+    const url = new URL('https://www.google.com/s2/favicons');
+    url.searchParams.set("sz", "128");
+    url.searchParams.set("domain_url", u);
+    console.log(url);
     return url.toString();
 }
 
