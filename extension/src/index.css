@@ -1,6 +1,6 @@
 body {
-  background-color: hsl(180, 100%, 50%);
-
+  background-color: #1e1e1e;
+  color: white;
 }
 
 .folder {
@@ -11,13 +11,14 @@ body {
   border-color: black;
   padding: 2px;
   margin: 2px;
+  padding: 10px;
 }
 
 
 .folder > div {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  
 }
 
 .bookmark > img{
@@ -29,8 +30,16 @@ body {
   display: flex;
   flex-direction: column;
   width: 100px;
+  padding: 20px;
+}
 
+.bookmark:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
+a {
+  color: white;
+  text-decoration: none;
 }
 
 
