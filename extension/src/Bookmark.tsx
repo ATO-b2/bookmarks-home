@@ -2,7 +2,7 @@ import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 
 function Bookmark(props: {data: BookmarkTreeNode}) {
     return(
-        <a className="bookmark" href={props.data.url}>
+        <a className="bookmark" id = "draggable" href={props.data.url}>
             <img alt="Bookmark icon" src={faviconURL(props.data.url)}></img>
             <span>{props.data.title}</span>
         </a>
@@ -19,5 +19,7 @@ function faviconURL(u: string | undefined) {
     console.log(url);
     return url.toString();
 }
+
+
 
 export default Bookmark;
