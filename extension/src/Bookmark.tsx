@@ -1,4 +1,4 @@
-import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
 function Bookmark(props: {data: BookmarkTreeNode}) {
     return(

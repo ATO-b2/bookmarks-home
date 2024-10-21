@@ -13,14 +13,6 @@
   },
   "author": "Owen Howell, Tyler Ferrari, Ariel Levy; students at RIT",
   "permissions": [
-    "bookmarks",
-    "favicon"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["_favicon/*"],
-      "matches": ["<all_urls>"],
-      "extension_ids": ["*"]
-    }
+    "bookmarks"
   ]
 }

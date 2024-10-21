@@ -1,4 +1,4 @@
-import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import Bookmark from "./Bookmark.tsx";
 
 function Folder (props: {data: BookmarkTreeNode}) {
