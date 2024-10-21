@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #242424;
   color: white;
@@ -23,17 +27,18 @@ body {
   flex-wrap: wrap;
 }
 
-.folder > span {
+.folder > summary {
   font-weight: bold;
   font-size: 20px;
   margin: 5px;
+  user-select: none
 }
 
 /* Bookmark */
 .bookmark {
   display: flex;
   flex-direction: column;
-  width: 100px;
+  width: 125px;
   padding: 10px;
   margin: 5px;
 }

@@ -3,10 +3,10 @@ import Bookmark from "./Bookmark.tsx";
 
 function Folder (props: {data: BookmarkTreeNode}) {
     return (
-        <div className="folder">
-            <span>{props.data.title}</span>
+        <details open className="folder">
+            <summary>{props.data.title}</summary>
             <div>
-                {
+            {
                     props.data.children &&
                     props.data.children.map(child =>
                         child.children
@@ -15,7 +15,7 @@ function Folder (props: {data: BookmarkTreeNode}) {
                     )
                 }
             </div>
-        </div>
+        </details>
     )
 }
 

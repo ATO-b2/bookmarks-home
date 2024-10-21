@@ -4,7 +4,8 @@ import Folder from "./Folder.tsx";
 
 chrome.bookmarks.getTree(tree => {
     createRoot(document.getElementById('root')!).render(
-        <Folder data={tree[0]} />
+        // @ts-ignore
+        <Folder data={tree[0].children[0]} />
     )
 });
 
