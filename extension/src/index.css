@@ -24,12 +24,13 @@ body {
   display: flex;
   flex-direction: column;
   right: 0;
-  animation: slideIn;
+  animation: slideIn 0.3s ease-in-out;
+
 }
 
 @keyframes slideIn {
-  from { width: 0; }
-  to {width: 300px}
+  from { transform: translateX(100%); }
+  to   { transform: translateX( 0% ); }
 }
 
 /* Folder */
