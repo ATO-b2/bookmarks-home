@@ -2,10 +2,35 @@
   box-sizing: border-box;
 }
 
+html {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   background-color: #242424;
   color: white;
   font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#settings-menu {
+  position: fixed;
+  height: 100%;
+  width: 300px;
+  background-color: black;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  right: 0;
+  animation: slideIn 0.3s ease-in-out;
+
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX( 0% ); }
 }
 
 /* Folder */
