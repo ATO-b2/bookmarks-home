@@ -6,6 +6,46 @@
     <title>Bookmarks Home</title>
   </head>
   <body>
+    <div id="settings-menu">
+      <h2>Settings</h2>
+
+      <h3>Sort</h3>
+      <label>
+        <input type="radio" name="sort">
+        From bookmarks
+      </label>
+      <label>
+        <input type="radio" name="sort">
+        Alphabetical
+      </label>
+      <label>
+        <input type="radio" name="sort">
+        Frequency
+      </label>
+
+      <h3>Background</h3>
+      <label>
+        <input type="radio" name="bg">
+        From Theme
+      </label>
+      <label>
+        <input type="radio" name="bg">
+        Solid color
+      </label>
+      <label>
+        <input type="radio" name="bg">
+        Image
+      </label>
+
+      <h3>Root folder</h3>
+      <label>
+        <select>
+          <option>Bookmarks Toolbar id:0</option>
+          <option>Mobile Bookmarks id:1</option>
+          <option>Other Bookmarks id:2</option>
+        </select>
+      </label>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
