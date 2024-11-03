@@ -21,10 +21,14 @@ body {
   width: 300px;
   background-color: black;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
   right: 0;
   animation: slideIn 0.3s ease-in-out;
+}
+
+#settings-menu form {
+  display: flex;
+  flex-direction: column;
+  place-items: flex-start;
 }
 
 .radio-group {

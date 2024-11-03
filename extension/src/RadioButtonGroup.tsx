@@ -1,38 +1,30 @@
-import React, {useId, useState} from "react";
+import React, {ReactElement, ReactNode, useId, useState} from "react";
 
-interface radioEntry {
-    label: string,
-    data: any,
+interface RadioProps {
+    children: ReactElement<HTMLOptionElement>[],
+    defaultValue: any,
+    onChange?: (arg0: any) => void
 }
 
-interface IProps {
-    groupLabel: string,
-    items: radioEntry[],
-    defaultData: any
-}
-
-function RadioButtonGroup(props: IProps) {
-    const [selected, setSelected] = useState(props.defaultData);
+function RadioButtonGroup(props: RadioProps) {
+    const [selected, setSelected] = useState(props.defaultValue);
+    props.onChange && props.onChange(selected);
 
     return (
-        <>
-            <h3>{props.groupLabel}</h3>
-            <div className="radio-group">
-                { props.items.map((item) => (
-                    <label>
-                        <input
-                            type="radio"
-                            name={useId()}
-                            value={item.data}
-                            checked={item.data === selected}
-                            onChange={e => setSelected(e.target.value)}
-                        />
-                        {item.label}
-                    </label>
-                )) }
-            </div>
-            <span>currently selected: {selected}</span>
-        </>
+        <div className="radio-group">
+            { props.children.map((item) => (
+                <label>
+                    <input
+                        type="radio"
+                        name={useId()}
+                        value={item.props.value}
+                        checked={item.props.value === selected}
+                        onChange={e => setSelected(e.target.value)}
+                    />
+                    {item.props.children.toString()}
+                </label>
+            )) }
+        </div>
     )
 }
 
