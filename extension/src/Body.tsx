@@ -12,7 +12,7 @@ function Body(props: {tree: BookmarkTreeNode[]}) {
             <button id="settings-button" onClick={_ => setSettingsOpen(!settingsOpen)}>
                 <img alt="open settings" src={imageUrl}/>
             </button>
-            {settingsOpen && (<SettingsEditor closer={setSettingsOpen}/>)}
+            {settingsOpen && (<SettingsEditor tree={props.tree} closer={setSettingsOpen}/>)}
             <Folder data={
                 (props.tree && props.tree[0] && props.tree[0].children && props.tree[0].children[0])!
             }/>

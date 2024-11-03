@@ -1,8 +1,9 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useState} from "react";
 import imageUrl from "./assets/close.svg"
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
-function SettingsEditor(props: {closer: (arg0: boolean) => void}) {
+function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean) => void}) {
     const [backgroundType, setBackgroundType] = useState("fromTheme");
     const [sort, setSort] = useState("fromBookmarks");
     const [rootFolder, setRootFolder] = useState('0');
@@ -21,6 +22,10 @@ function SettingsEditor(props: {closer: (arg0: boolean) => void}) {
                 <option value={"frequency"}>Frequency</option>
                 <option value={"recent"}>Recently used</option>
             </RadioButtonGroup>
+            <label>
+                <input type={"checkbox"}/>
+                Sort Folders First
+            </label>
 
             <h3>Background Type</h3>
             <RadioButtonGroup defaultValue={backgroundType} onChange={e => setBackgroundType(e)}>
@@ -37,9 +42,9 @@ function SettingsEditor(props: {closer: (arg0: boolean) => void}) {
 
             <h3>Root folder</h3>
             <select defaultValue={rootFolder} onChange={e => setRootFolder(e.target.value)}>
-                <option value={'0'}>Bookmarks Toolbar id:0</option>
-                <option value={'1'}>Mobile Bookmarks id:1</option>
-                <option value={'2'}>Other Bookmarks id:2</option>
+                {getFoldersFromTree(props.tree).map(i =>
+                    <option value={i.id}>{i.title ? i.title : "Untitled (id:"+i.id+")"}</option>
+                )}
             </select>
 
             <br/>
@@ -49,6 +54,20 @@ function SettingsEditor(props: {closer: (arg0: boolean) => void}) {
             <button>Save</button>
         </div>
     )
+}
+
+function getFoldersFromTree(tree: BookmarkTreeNode[]) {
+    let folderList: BookmarkTreeNode[] = [];
+    rec(tree);
+    function rec(tree: BookmarkTreeNode[]) {
+        tree.forEach(item => {
+            if (item.children) {
+                folderList.push(item);
+                rec(item.children);
+            }
+        })
+    }
+    return folderList;
 }
 
 export default SettingsEditor;
