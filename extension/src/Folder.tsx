@@ -6,7 +6,7 @@ function Folder (props: {data: BookmarkTreeNode}) {
         <details open className="folder">
             <summary>{props.data.title}</summary>
             <div>
-            {
+                {
                     props.data.children &&
                     props.data.children.map(child =>
                         child.children
