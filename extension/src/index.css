@@ -23,9 +23,6 @@ body {
   padding: 10px;
   right: 0;
   animation: slideIn 0.3s ease-in-out;
-}
-
-#settings-menu form {
   display: flex;
   flex-direction: column;
   place-items: flex-start;
@@ -49,7 +46,6 @@ body {
   border-style: solid;
   border-width: 1px;
   border-color: #393939;
-  padding: 2px;
   margin: 5px;
   padding: 10px;
 }
@@ -65,6 +61,11 @@ body {
   font-size: 20px;
   margin: 5px;
   user-select: none
+}
+
+body > .folder {
+  margin: 0;
+  border-style: none;
 }
 
 /* Bookmark */
@@ -95,6 +96,21 @@ body {
 a {
   color: white;
   text-decoration: none;
+}
+
+#settings-close, #settings-button {
+  border-style: none;
+  background: none;
+  color: white;
+  padding: 5px;
+  margin: 5px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#settings-close:hover, #settings-button:hover {
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 
