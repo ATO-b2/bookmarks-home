@@ -7,9 +7,7 @@ if (typeof browser === "undefined") {
     var browser = chrome;
 }
 
-browser.bookmarks.getTree().then(tree => {
-    createRoot(document.body).render(<Body tree={tree}/>)
-});
+createRoot(document.body).render(<Body/>)
 
 // chrome.bookmarks.create(
 //     {'parentId': '0', 'title': 'Bookmarks Extension'},

@@ -1,12 +1,13 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import imageUrl from "./assets/close.svg"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import {RootFolder} from "./Body.tsx";
 
 function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean) => void}) {
     const [backgroundType, setBackgroundType] = useState("fromTheme");
     const [sort, setSort] = useState("fromBookmarks");
-    const [rootFolder, setRootFolder] = useState('0');
+    const {rootFolder, setRootFolder} = useContext(RootFolder)
 
     return (
         <div id="settings-menu">
