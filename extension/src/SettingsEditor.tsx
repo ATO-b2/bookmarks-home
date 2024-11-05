@@ -4,7 +4,7 @@ import imageUrl from "./assets/close.svg"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {RootFolder} from "./Body.tsx";
 
-function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean) => void}) {
+function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean) => void, setBackgroundURL: (arg0: string) => void}) {
     const [backgroundType, setBackgroundType] = useState("fromTheme");
     const [sort, setSort] = useState("fromBookmarks");
     const {rootFolder, setRootFolder} = useContext(RootFolder)
@@ -34,6 +34,9 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean
                 <option value={"solidColor"}>Solid Color</option>
                 <option value={"image"}>Image</option>
             </RadioButtonGroup>
+
+            <h3>Background URL</h3>
+            <input type={"url"} onChange={e => props.setBackgroundURL(e.target.value)}/>
 
             <h3>Edit mode</h3>
             <label>
