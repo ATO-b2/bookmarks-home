@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import Folder from "./Folder.tsx";
 import imageUrl from "./assets/settings.svg"
@@ -24,21 +24,18 @@ function Body() {
     const [rootFolder, setRootFolder] = useState('1')
     const [bookmarkTree, setBookmarkTree] = useState<BookmarkTreeNode[]>([])
     const [ogBookmarkTree, setOgBookmarkTree] = useState<BookmarkTreeNode[] | null>([])
-
-    browser.bookmarks.getSubTree(rootFolder).then(t => {
-        console.log(t);
-        if (t != bookmarkTree) {
-            setBookmarkTree(t);
-        }
-        console.log(bookmarkTree == t)
-    });
-
-    if (ogBookmarkTree?.length == 0) {
+    useEffect(() => {
         browser.bookmarks.getTree().then(t => {
             setOgBookmarkTree(t);
         })
-    }
+    }, [])
+    useEffect(() => {
+        browser.bookmarks.getSubTree(rootFolder).then(t => {
+            setBookmarkTree(t);
+        });
+    }, [rootFolder]);
 
+    console.log("Body re-render")
     return (
         <BookmarkTree.Provider value={{bookmarkTree, setBookmarkTree}}>
         <RootFolder.Provider value={{rootFolder, setRootFolder}}>
