@@ -21,6 +21,4 @@ function faviconURL(u: string | undefined) {
 
 }
 
-
-
 export default Bookmark;
