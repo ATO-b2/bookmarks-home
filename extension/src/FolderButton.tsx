@@ -16,7 +16,7 @@ function FolderButton(props: {data: BookmarkTreeNode}) {
             </a>
             { folderOpen
                 && props.data.children
-                && props.data.children.length > 1
+                && props.data.children.length > 0
                 && (<FolderBody data={props.data}/>)}
         </>
 );

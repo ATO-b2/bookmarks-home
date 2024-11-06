@@ -2,9 +2,12 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import Body from "./Body.tsx";
 
-// @ts-ignore
-if (typeof browser === "undefined") {
-    var browser = chrome;
+export function getBrowser() {
+    if (typeof browser === "undefined") {
+        return chrome;
+    } else {
+        return browser;
+    }
 }
 
 createRoot(document.body).render(<Body/>)

@@ -1,4 +1,4 @@
-import React, {ReactElement, ReactNode, useId, useState} from "react";
+import React, {ReactElement, useEffect, useId, useState} from "react";
 
 interface RadioProps {
     children: ReactElement<HTMLOptionElement>[],
@@ -8,7 +8,9 @@ interface RadioProps {
 
 function RadioButtonGroup(props: RadioProps) {
     const [selected, setSelected] = useState(props.defaultValue);
-    props.onChange && props.onChange(selected);
+    useEffect(() => {
+        props.onChange && props.onChange(selected);
+    }, [selected])
 
     return (
         <div className="radio-group">
@@ -29,17 +31,3 @@ function RadioButtonGroup(props: RadioProps) {
 }
 
 export default RadioButtonGroup
-
-//     <h3>Sort</h3>
-//     <label>
-//         <input type="radio" name="sort"/>
-//         From bookmarks
-//     </label>
-//     <label>
-//         <input type="radio" name="sort"/>
-//         Alphabetical
-//     </label>
-//     <label>
-//         <input type="radio" name="sort"/>
-//         Frequency
-//     </label>
