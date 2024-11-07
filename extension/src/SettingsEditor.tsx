@@ -4,12 +4,13 @@ import imageUrl from "./assets/close.svg"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Body.tsx";
 
-function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean) => void}) {
+function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  React.Dispatch<React.SetStateAction<boolean>>]}) {
     const [settings, setSettings] = useContext(Settings)
+    const [open, setOpen] = props.isOpen;
 
     return (
-        <div id="settings-menu">
-            <button id="settings-close" onClick={_ => props.closer(false)}>
+        <div id="settings-menu" className={open? "open": "closed"}>
+            <button id="settings-close" onClick={_ => setOpen(false)}>
                 <img alt="close settings" src={imageUrl}/>
             </button>
             <h1>Settings</h1>
@@ -40,13 +41,13 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], closer: (arg0: boolean
 
             {(() => { switch (settings.backgroundMode) {
                 case "image": return (<>
-                    <h3>Background Color</h3>
+                    <h3>Background Image URL</h3>
                     <input type={"url"}
                            defaultValue={settings.backgroundImage}
                            onChange={e => setSettings({...settings, backgroundImage: e.target.value})}/>
                 </>)
                 case "color": return (<>
-                    <h3>Background URL</h3>
+                    <h3>Background Color</h3>
                     <input type={"color"}
                            defaultValue={settings.backgroundColor}
                            onChange={e => setSettings({...settings, backgroundColor: e.target.value})}/>

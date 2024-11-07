@@ -22,7 +22,9 @@ export let defaultSettings: ISettings = {
 
 export function loadSettings(): Promise<ISettings> {
     // @ts-ignore
-    return getBrowser().storage.local.get(defaultSettings)
+    let tmp: Promise<ISettings> = getBrowser().storage.local.get(defaultSettings);
+    tmp.then(j => console.log(j))
+    return tmp;
 }
 
 export function writeSettings(settings: ISettings) {

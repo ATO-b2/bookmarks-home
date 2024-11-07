@@ -47,7 +47,7 @@ function Body() {
             <button id="settings-button" onClick={_ => setSettingsOpen(!settingsOpen)}>
                 <img alt="open settings" src={imageUrl}/>
             </button>
-            {settingsOpen && (<SettingsEditor tree={ogBookmarkTree!} closer={setSettingsOpen}/>)}
+            <SettingsEditor tree={ogBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
             {bookmarkTree[0] && (<FolderBody data={bookmarkTree[0]}/>)}
         </Settings.Provider>
     )
