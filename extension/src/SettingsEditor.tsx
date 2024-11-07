@@ -9,15 +9,17 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
     const [open, setOpen] = props.isOpen;
 
     return (
-        <div id="settings-menu" className={open? "open": "closed"}>
+        <div id="settings-menu" className={open ? "open" : "closed"}>
             <button id="settings-close" onClick={_ => setOpen(false)}>
                 <img alt="close settings" src={imageUrl}/>
             </button>
             <h1>Settings</h1>
 
             <h3>Sort</h3>
-            <RadioButtonGroup defaultValue={settings.sort}
-                              onChange={e => {setSettings({...settings, sort: e})}}>
+            <RadioButtonGroup value={settings.sort}
+                              onChange={e => {
+                                  setSettings({...settings, sort: e})
+                              }}>
                 <option value={"from-bookmarks"}>From Bookmarks</option>
                 <option value={"alphabetical"}>Alphabetical</option>
                 <option value={"frequency"}>Frequency</option>
@@ -32,44 +34,46 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
             </label>
 
             <h3>Background Type</h3>
-            <RadioButtonGroup defaultValue={settings.backgroundMode}
+            <RadioButtonGroup value={settings.backgroundMode}
                               onChange={e => setSettings({...settings, backgroundMode: e})}>
                 <option value={"theme"}>Default</option>
                 <option value={"color"}>Solid Color</option>
                 <option value={"image"}>Image</option>
             </RadioButtonGroup>
 
-            {(() => { switch (settings.backgroundMode) {
-                case "image": return (<>
-                    <h3>Background Image URL</h3>
-                    <input type={"url"}
-                           defaultValue={settings.backgroundImage}
-                           onChange={e => setSettings({...settings, backgroundImage: e.target.value})}/>
-                </>)
-                case "color": return (<>
-                    <h3>Background Color</h3>
-                    <input type={"color"}
-                           defaultValue={settings.backgroundColor}
-                           onChange={e => setSettings({...settings, backgroundColor: e.target.value})}/>
-                </>)
-            }})()}
-
-            <h3>Edit mode</h3>
-            <label>
-                <input type={"checkbox"}/>
-                Enable Edit mode
-            </label>
+            {(() => {
+                switch (settings.backgroundMode) {
+                    case "image":
+                        return (<>
+                            <h3>Background Image URL</h3>
+                            <input type={"url"}
+                                   value={settings.backgroundImage}
+                                   onChange={e => setSettings({...settings, backgroundImage: e.target.value})}/>
+                        </>)
+                    case "color":
+                        return (<>
+                            <h3>Background Color</h3>
+                            <input type={"color"}
+                                   value={settings.backgroundColor}
+                                   onChange={e => setSettings({...settings, backgroundColor: e.target.value})}/>
+                        </>)
+                }
+            })()}
 
             <h3>Root folder</h3>
-            <select defaultValue={settings.rootFolder!}
+            <select value={settings.rootFolder!}
                     onChange={e => setSettings({...settings, rootFolder: e.target.value})}>
                 {getFoldersFromTree(props.tree).map(i =>
                     <option value={i.id}>{i.title ? i.title : "Untitled (id:" + i.id + ")"}</option>
                 )}
             </select>
 
+            {/*<br/>*/}
+            {/*<span>sort: {settings.sort}</span>*/}
+            {/*<span>rootFolder: {settings.rootFolder}</span>*/}
+            {/*<span>bgmode: {settings.backgroundMode}</span>*/}
         </div>
-    )
+)
 }
 
 function getFoldersFromTree(tree: BookmarkTreeNode[]) {
