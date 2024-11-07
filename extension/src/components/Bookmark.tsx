@@ -1,7 +1,11 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
+/**
+ * A component for a single bookmark
+ *
+ * @param props.data The BookmarkTreeNode with the data for the bookmark
+ */
 function Bookmark(props: {data: BookmarkTreeNode}) {
-    
     return(
         <a className="bookmark draggable" href={props.data.url}>
             <img alt="Bookmark icon" src={faviconURL(props.data.url)}></img>
@@ -10,6 +14,12 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
     );
 }
 
+/**
+ * Gets the icon for a bookmark
+ *
+ * @param u The URL of the link
+ * @return The URL of the icon
+ */
 function faviconURL(u: string | undefined) {
     if (!u) return "";
     u = new URL(u).hostname.toString();

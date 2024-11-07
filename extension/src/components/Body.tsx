@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
-import imageUrl from "./assets/settings.svg"
+import imageUrl from "../assets/settings.svg"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
-import {defaultSettings, ISettings, loadSettings, writeSettings} from "./Settings.ts";
-import {getBrowser} from "./main.tsx";
+import {defaultSettings, ISettings, loadSettings, writeSettings} from "../Settings.ts";
+import {getBrowser} from "../main.tsx";
 
 export const Settings =
     React.createContext<[ISettings, (arg0: ISettings) => void]>([
@@ -12,6 +12,10 @@ export const Settings =
     () => {}
 ]);
 
+/**
+ * A component for the full body of the application
+ * Also stores the trees and settings
+ */
 function Body() {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [settings, setSettings] = useState<ISettings>(defaultSettings);

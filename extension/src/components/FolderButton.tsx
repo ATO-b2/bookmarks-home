@@ -1,11 +1,16 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
-import folderIcon from "./assets/folder.svg"
-import folderIconOpen from "./assets/folder_open.svg"
+import folderIcon from "../assets/folder.svg"
+import folderIconOpen from "../assets/folder_open.svg"
 import {useState} from "react";
 
+/**
+ * A component for the button used to open a bookmark folder.
+ * This is themed the same as a bookmark
+ *
+ * @param props.data The BookmarkTreeNode containing the data of the folder
+ */
 function FolderButton(props: {data: BookmarkTreeNode}) {
-
     const [folderOpen, setFolderOpen] = useState(false);
 
     return(

@@ -1,9 +1,15 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useContext} from "react";
-import imageUrl from "./assets/close.svg"
+import imageUrl from "../assets/close.svg"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Body.tsx";
 
+/**
+ * A component for the settings sidebar
+ *
+ * @param props.tree The full bookmarks tree (for use in the root selector)
+ * @param props.isOpen State for weather the menu is open
+ */
 function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  React.Dispatch<React.SetStateAction<boolean>>]}) {
     const [settings, setSettings] = useContext(Settings)
     const [open, setOpen] = props.isOpen;
@@ -76,6 +82,11 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
 )
 }
 
+/**
+ * Walks the tree and creates a list of the folders
+ *
+ * @param tree The full tree to walk through
+ */
 function getFoldersFromTree(tree: BookmarkTreeNode[]) {
     let folderList: BookmarkTreeNode[] = [];
     rec(tree);

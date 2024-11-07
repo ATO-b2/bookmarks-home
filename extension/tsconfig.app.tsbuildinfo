@@ -1,1 +1,1 @@
-{"root":["./src/Body.tsx","./src/Bookmark.tsx","./src/FolderBody.tsx","./src/FolderButton.tsx","./src/RadioButtonGroup.tsx","./src/Settings.ts","./src/SettingsEditor.tsx","./src/main.tsx","./src/vite-env.d.ts"],"version":"5.6.2"}
+{"root":["./src/Settings.ts","./src/main.tsx","./src/vite-env.d.ts","./src/components/Body.tsx","./src/components/Bookmark.tsx","./src/components/FolderBody.tsx","./src/components/FolderButton.tsx","./src/components/RadioButtonGroup.tsx","./src/components/SettingsEditor.tsx"],"version":"5.6.2"}

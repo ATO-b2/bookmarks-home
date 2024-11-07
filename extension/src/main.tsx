@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import Body from "./Body.tsx";
+import Body from "./components/Body.tsx";
 
 export function getBrowser() {
     if (typeof browser === "undefined") {

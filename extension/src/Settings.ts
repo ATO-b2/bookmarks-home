@@ -1,7 +1,7 @@
 import {getBrowser} from "./main.tsx";
 
 export interface ISettings {
-    sort: "from-bookmarks" | "alphabetical" | "frequency" | "recent"
+    sort: "from-bookmarks" | "alphabetical" | "recent"
     foldersFirst: boolean
     backgroundMode: "theme" | "color" | "image"
     backgroundColor: string
