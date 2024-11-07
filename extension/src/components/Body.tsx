@@ -19,25 +19,27 @@ export const Settings =
 function Body() {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [settings, setSettings] = useState<ISettings>(defaultSettings);
-    const [bookmarkTree, setBookmarkTree] = useState<BookmarkTreeNode[]>([])
-    const [ogBookmarkTree, setOgBookmarkTree] = useState<BookmarkTreeNode[] | null>([])
+    const [selectedBookmarkTree, setSelectedBookmarkTree] = useState<BookmarkTreeNode[]>([])
+    const [fullBookmarkTree, setFullBookmarkTree] = useState<BookmarkTreeNode[] | null>([])
+
     useEffect(() => {
         loadSettings().then(r => {
             setSettings(r);
         })
         getBrowser().bookmarks.getTree().then(t => {
-            setOgBookmarkTree(t);
+            setFullBookmarkTree(t);
         })
     }, [])
+
     useEffect(() => {
         writeSettings(settings);
         if (settings?.rootFolder) {
             getBrowser().bookmarks.getSubTree(settings.rootFolder).then(t => {
-                setBookmarkTree(t);
+                setSelectedBookmarkTree(t);
             });
         } else {
             getBrowser().bookmarks.getTree().then(t => {
-                setBookmarkTree(t);
+                setSelectedBookmarkTree(t);
             })
         }
     }, [settings]);
@@ -51,8 +53,8 @@ function Body() {
             <button id="settings-button" onClick={_ => setSettingsOpen(!settingsOpen)}>
                 <img alt="open settings" src={imageUrl}/>
             </button>
-            <SettingsEditor tree={ogBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
-            {bookmarkTree[0] && (<FolderBody data={bookmarkTree[0]}/>)}
+            <SettingsEditor tree={fullBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
+            {selectedBookmarkTree[0] && (<FolderBody data={selectedBookmarkTree[0]}/>)}
         </Settings.Provider>
     )
 }
