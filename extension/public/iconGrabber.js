@@ -1,3 +1,11 @@
+export function getBrowser() {
+    if (typeof browser === "undefined") {
+        return chrome;
+    } else {
+        return browser;
+    }
+}
+
 const tagTypes = ["apple-touch-icon", "shortcut icon", "icon"]
 
 let x = Array.from(document.getElementsByTagName("link"))
@@ -10,6 +18,6 @@ let x = Array.from(document.getElementsByTagName("link"))
     })
     .map(elem => elem.href);
 
-chrome.runtime.sendMessage([window.location.href, x[0]]).catch(() => {
+getBrowser().runtime.sendMessage([window.location.href, x[0]]).catch(() => {
     console.log("failed to send message")
 })
