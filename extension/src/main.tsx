@@ -3,11 +3,7 @@ import './index.css'
 import Body from "./components/Body.tsx";
 
 export function getBrowser() {
-    if (typeof browser === "undefined") {
-        return chrome;
-    } else {
-        return browser;
-    }
+    return typeof browser === "undefined" ? chrome : browser;
 }
 //
 // getBrowser().runtime.onMessage.addListener((message) => {

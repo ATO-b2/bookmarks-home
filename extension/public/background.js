@@ -1,9 +1,5 @@
 function getBrowser() {
-    if (typeof browser === "undefined") {
-        return chrome;
-    } else {
-        return browser;
-    }
+    return typeof browser === "undefined" ? chrome : browser;
 }
 
 getBrowser().runtime.onMessage.addListener(async (request, sender, sendResponse) => {
