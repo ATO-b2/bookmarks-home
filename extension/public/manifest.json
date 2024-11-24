@@ -15,5 +15,12 @@
   "permissions": [
     "bookmarks",
     "storage"
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [{
+    "js": ["iconGrabber.js"],
+    "matches": ["<all_urls>"]
+  }]
 }

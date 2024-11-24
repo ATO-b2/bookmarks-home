@@ -9,6 +9,15 @@ export function getBrowser() {
         return browser;
     }
 }
+//
+// getBrowser().runtime.onMessage.addListener((message) => {
+//     console.log(message);
+//     if (message[0] === "icon") {
+//         getBrowser().bookmarks.search({url : message[1]}).then(r => {
+//             getBrowser().storage.local.set({["icon-"+r[0].id] : message[2]});
+//         })
+//     }
+// })
 
 createRoot(document.body).render(<Body/>)
 
