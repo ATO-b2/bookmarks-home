@@ -85,11 +85,30 @@ body > .folderBody {
   padding: 10px;
   margin: 10px;
   user-select: none;
+  border-radius: 10px;
 }
 
-.bookmark > img {
-  padding: 15px;
+.icon-box {
+  margin: 15px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.icon-box.small {
+  border-radius: 10px;
+  background-color: #ffffff14;
+}
+
+.icon-box > img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.icon-box.small > img  {
+  width: 50%;
+  border-radius: 5px;
 }
 
 .bookmark > span {

@@ -15,11 +15,13 @@ function FolderButton(props: {data: BookmarkTreeNode}) {
 
     return(
         <>
-            <a className={"bookmark draggable"} onClick={() => setFolderOpen(!folderOpen)}>
-                <img alt="Folder icon" src={folderOpen ? folderIconOpen : folderIcon}/>
+            <a className="bookmark draggable" onClick={() => setFolderOpen(!folderOpen)}>
+                <div className="icon-box">
+                    <img alt="Folder icon" src={folderOpen ? folderIconOpen : folderIcon}/>
+                </div>
                 <span>{props.data.title}</span>
             </a>
-            { folderOpen
+            {folderOpen
                 && props.data.children
                 && props.data.children.length > 0
                 && (<FolderBody data={props.data}/>)}

@@ -1,6 +1,6 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import GlobeIcon from "../assets/globe.svg"
-import React, {useEffect} from "react";
+import React, {SyntheticEvent, useEffect} from "react";
 import {getBrowser} from "../main.tsx";
 
 /**
@@ -10,6 +10,7 @@ import {getBrowser} from "../main.tsx";
  */
 function Bookmark(props: {data: BookmarkTreeNode}) {
     let [favicon, setFavicon] = React.useState(GlobeIcon);
+    let [isSmall, setSmall] = React.useState(true);
     useEffect(() => {
         // faviconURL(props.data.url).then(o => o && setFavicon(o))
         faviconURL(props.data).then(r => {
@@ -21,7 +22,12 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
 
     return(
         <a className="bookmark draggable" href={props.data.url}>
-            <img alt="Bookmark icon" src={favicon}></img>
+            <div className={"icon-box" + (isSmall ? " small" : "")}>
+                <img alt="Bookmark icon"
+                     src={favicon}
+                     onLoad={(e) => setSmall(e.currentTarget.naturalWidth < 75 && !favicon.endsWith(".svg") && favicon !== GlobeIcon)}
+                ></img>
+            </div>
             <span>{props.data.title}</span>
         </a>
     );
