@@ -50,6 +50,7 @@ function Body() {
                 case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
             }})()}
+            <style>{"body > .folderBody, a {color: " + settings.foregroundColor + "; }"}</style>
             <button id="settings-button" onClick={_ => setSettingsOpen(!settingsOpen)}>
                 <img alt="open settings" src={imageUrl}/>
             </button>

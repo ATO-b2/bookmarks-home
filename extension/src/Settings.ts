@@ -6,6 +6,7 @@ export interface ISettings {
     backgroundMode: "theme" | "color" | "image"
     backgroundColor: string
     backgroundImage: string
+    foregroundColor: string
     editMode: boolean
     rootFolder: string | null
 }
@@ -16,6 +17,7 @@ export let defaultSettings: ISettings = {
     backgroundMode: "theme",
     backgroundColor: "#000000",
     backgroundImage: "",
+    foregroundColor: "#FFFFFF",
     editMode: false,
     rootFolder: '0',
 }

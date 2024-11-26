@@ -66,6 +66,11 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
                 }
             })()}
 
+            <h3>Foreground Color</h3>
+            <input type={"color"}
+                   value={settings.foregroundColor}
+                   onChange={e => setSettings({...settings, foregroundColor: e.target.value})}/>
+
             <h3>Root folder</h3>
             <select value={settings.rootFolder!}
                     onChange={e => setSettings({...settings, rootFolder: e.target.value})}>
@@ -79,7 +84,7 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
             {/*<span>rootFolder: {settings.rootFolder}</span>*/}
             {/*<span>bgmode: {settings.backgroundMode}</span>*/}
         </div>
-)
+    )
 }
 
 /**
