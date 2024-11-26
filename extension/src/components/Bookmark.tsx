@@ -15,7 +15,7 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
         // faviconURL(props.data.url).then(o => o && setFavicon(o))
         faviconURL(props.data).then(r => {
             if (r) {
-                setFavicon(r);
+                setFavicon(r)
             }
         })
     }, []);
@@ -25,7 +25,7 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
             <div className={"icon-box" + (isSmall ? " small" : "")}>
                 <img alt="Bookmark icon"
                      src={favicon}
-                     onLoad={(e) => setSmall(e.currentTarget.naturalWidth < 75 && !favicon.endsWith(".svg") && favicon !== GlobeIcon)}
+                     onLoad={(e) => setSmall(e.currentTarget.naturalWidth < 75 && !favicon.startsWith("data:image/svg+xml"))}
                 ></img>
             </div>
             <span>{props.data.title}</span>
@@ -40,15 +40,28 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
  * @return The URL of the icon
  */
 async function faviconURL(data: BookmarkTreeNode) {
+    let i = (await getBrowser().storage.local.get("icon-cache-"+data.id))["icon-cache-"+data.id];
+    if (i) return i
 
-    let i = (await getBrowser().storage.local.get("icon-"+data.id))["icon-"+data.id];
-    if (i) return i.toString()
     const url = new URL('https://www.google.com/s2/favicons');
     url.searchParams.set("sz", "256");
     url.searchParams.set("domain_url", data.url!);
-    if ((await fetch(url)).ok) {
-        return url.toString();
-    }
+    let resp = await fetch(url)
+    let imgData = resp.ok ? await toDataURL(url.toString()) : GlobeIcon;
+    getBrowser().storage.local.set({["icon-cache-"+data.id]: imgData});
+    return imgData;
+}
+
+function toDataURL(url:string):string {
+    // @ts-ignore
+    return fetch(url)
+        .then(response => response.blob())
+        .then(blob => new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onloadend = () => resolve(reader.result)
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+        }))
 }
 
 export default Bookmark;
