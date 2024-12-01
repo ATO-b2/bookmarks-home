@@ -40,28 +40,79 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
  * @return The URL of the icon
  */
 async function faviconURL(data: BookmarkTreeNode) {
-    let i = (await getBrowser().storage.local.get("icon-cache-"+data.id))["icon-cache-"+data.id];
-    if (i) return i
+    let url = new URL(data.url!).origin.toString();
+    let response = (await getBrowser().storage.local.get("icon-cache-"+data.id))["icon-cache-"+data.id];
+    if (response) return response;
 
-    const url = new URL('https://www.google.com/s2/favicons');
-    url.searchParams.set("sz", "256");
-    url.searchParams.set("domain_url", data.url!);
-    let resp = await fetch(url)
-    let imgData = resp.ok ? await toDataURL(url.toString()) : GlobeIcon;
-    getBrowser().storage.local.set({["icon-cache-"+data.id]: imgData});
+    let imgData = await getFavicon(url);
+    console.log("imgdata", imgData)
+    if (imgData) {
+        await getBrowser().storage.local.set({["icon-cache-"+data.id]: imgData});
+        return imgData;
+    }
+}
+
+async function getFavicon(url: string) {
+    // get html from service worker
+    let response = await chrome.runtime.sendMessage(url)
+    if (!response) {
+        console.log("failed to fetch site", url);
+        return;
+    }
+
+    // parse html
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(response, 'text/html');
+
+    // locate best icons
+    const tagTypes = ["apple-touch-icon", "shortcut icon", "icon"]
+    let icons =  Array.from(doc.getElementsByTagName("link"))
+        .filter(elem => tagTypes.includes(elem.rel))
+        .sort((a, b) => {
+            function compareTags() {
+                // ascending
+                return tagTypes.indexOf(a.rel) - tagTypes.indexOf(b.rel);
+            }
+            function compareSizes() {
+                function getSize(elem: any) {
+                    try { return Number(elem.sizes[0].split('x')[0]); }
+                    catch { return 0; }
+                }
+                // descending
+                return getSize(b) - getSize(a);
+            }
+
+            return compareSizes() || compareTags()
+        })
+        .map(elem => {
+            const extUrl = getBrowser().runtime.getURL("");
+            return elem.href.replace(extUrl, url + "/");
+        });
+    if (icons.length <= 0) {
+        console.log("did not find icon on", url)
+        return;
+    }
+
+    // encode icon
+    let imgData = toDataURL(icons[0]);
     return imgData;
 }
 
-function toDataURL(url:string):string {
-    // @ts-ignore
-    return fetch(url)
-        .then(response => response.blob())
-        .then(blob => new Promise((resolve, reject) => {
+async function toDataURL(url: string): Promise<string> {
+    try {
+        let response = await fetch(url);
+        let blob = await response.blob();
+        let res = await new Promise<string | ArrayBuffer | null>((resolve, reject) => {
             const reader = new FileReader()
             reader.onloadend = () => resolve(reader.result)
             reader.onerror = reject
             reader.readAsDataURL(blob)
-        }))
+        })
+        return res!.toString();
+    } catch (ex) {
+        console.log("Failed ToDataURL", url, ex);
+        return "";
+    }
 }
 
 export default Bookmark;

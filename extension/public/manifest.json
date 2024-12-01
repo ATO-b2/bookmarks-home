@@ -14,7 +14,8 @@
   "author": "Owen Howell, Tyler Ferrari, Ariel Levy; students at RIT",
   "permissions": [
     "bookmarks",
-    "storage"
+    "storage",
+    "offscreen"
   ],
   "background": {
     "service_worker": "background.js"
