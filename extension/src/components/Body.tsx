@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
-import imageUrl from "../assets/settings.svg"
+import SettingsIcon from "../assets/settings.svg?react";
+import EditIcon from "../assets/edit.svg?react";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
 import {defaultSettings, ISettings, loadSettings, writeSettings} from "../Settings.ts";
@@ -33,7 +34,7 @@ function Body() {
 
     useEffect(() => {
         writeSettings(settings);
-        if (settings?.rootFolder) {
+        if (settings.rootFolder) {
             getBrowser().bookmarks.getSubTree(settings.rootFolder).then(t => {
                 setSelectedBookmarkTree(t);
             });
@@ -51,9 +52,15 @@ function Body() {
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
             }})()}
             <style>{"body > .folderBody, a {color: " + settings.foregroundColor + "; }"}</style>
-            <button id="settings-button" onClick={_ => setSettingsOpen(!settingsOpen)}>
-                <img alt="open settings" src={imageUrl}/>
-            </button>
+            <div id={"action-area"}>
+                {settings.editMode && <span>Move mode: Drag bookmarks to change order</span>}
+                <button onClick={_ => setSettings({...settings, editMode: !settings.editMode})}>
+                    <EditIcon fill={settings.editMode? "lime" : "currentColor"}/>
+                </button>
+                <button onClick={_ => setSettingsOpen(!settingsOpen)}>
+                    <SettingsIcon/>
+                </button>
+            </div>
             <SettingsEditor tree={fullBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
             {selectedBookmarkTree[0] && (<FolderBody data={selectedBookmarkTree[0]}/>)}
         </Settings.Provider>

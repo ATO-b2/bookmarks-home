@@ -79,11 +79,15 @@ body > .folderBody {
 
 /* Bookmark */
 .bookmark {
+  padding: 10px;
+  position: relative;
+}
+
+.bookmark > a {
   display: flex;
   flex-direction: column;
   width: 125px;
   padding: 10px;
-  margin: 10px;
   user-select: none;
   border-radius: 10px;
 }
@@ -96,9 +100,21 @@ body > .folderBody {
   justify-content: center;
 }
 
-.icon-box.small {
+@property --icon-bg {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #ffffff14;
+}
+
+.icon-box.small, .icon-box.letter {
   border-radius: 10px;
-  background-color: #ffffff14;
+  background-color: var(--icon-bg);
+}
+
+.icon-box > span {
+  font-size: xx-large;
+  text-transform: capitalize;
+  font-weight: bold;
 }
 
 .icon-box > img {
@@ -106,12 +122,17 @@ body > .folderBody {
   border-radius: 10px;
 }
 
+.icon-box > svg {
+  width: 100%;
+  height: 100%;
+}
+
 .icon-box.small > img  {
   width: 50%;
   border-radius: 5px;
 }
 
-.bookmark > span {
+.bookmark > a > span {
   text-wrap: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -119,7 +140,7 @@ body > .folderBody {
   font-size: 12px;
 }
 
-.bookmark:hover {
+.bookmark > a:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
@@ -128,7 +149,7 @@ a {
   text-decoration: none;
 }
 
-#settings-close, #settings-button {
+#settings-close {
   border-style: none;
   background: none;
   color: white;
@@ -140,8 +161,100 @@ a {
   z-index: 2;
 }
 
-#settings-close:hover, #settings-button:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+#action-area {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  gap: 5px;
+  margin: 5px;
+  display: flex;
+  flex-direction: row;
+
+  button {
+    border-style: none;
+    background: none;
+    color: white;
+  }
+
+  > * {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  button:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Drop targets */
+.drop-targets {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  /* bottom: 0; */
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/*.drop-targets > *:hover {*/
+/*  background-color: red;*/
+/*}*/
+
+.drop-targets > .left {
+  position: absolute;
+  left: -2px;
+  height: 100%;
+  width: 30px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  > div {
+    background-color: aqua;
+    height: 50%;
+    width: 4px;
+  }
+}
+
+.drop-targets > .right {
+  position: absolute;
+  right: -2px;
+  height: 100%;
+  width: 30px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  > div {
+    background-color: aqua;
+    width: 4px;
+    height: 50%;
+  }
+}
+
+.drop-targets > .center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 30px;
+  right: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  > span {
+    color: aqua;
+    font-size: 100px;
+    /* background-color: aqua; */
+    /* aspect-ratio: 1 / 1; */
+    /* height: 100px; */
+    font-family: monospace;
+  }
 }
 
 

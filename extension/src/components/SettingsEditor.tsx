@@ -1,8 +1,9 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useContext} from "react";
-import imageUrl from "../assets/close.svg"
+import CloseIcon from "../assets/close.svg?react"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Body.tsx";
+import {getBrowser} from "../main.tsx";
 
 /**
  * A component for the settings sidebar
@@ -17,7 +18,7 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
     return (
         <div id="settings-menu" className={open ? "open" : "closed"}>
             <button id="settings-close" onClick={_ => setOpen(false)}>
-                <img alt="close settings" src={imageUrl}/>
+                <CloseIcon/>
             </button>
             <h1>Settings</h1>
 
@@ -28,7 +29,6 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
                               }}>
                 <option value={"from-bookmarks"}>From Bookmarks</option>
                 <option value={"alphabetical"}>Alphabetical</option>
-                <option value={"frequency"}>Frequency</option>
                 <option value={"recent"}>Recently used</option>
             </RadioButtonGroup>
             <br/>
@@ -79,10 +79,9 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
                 )}
             </select>
 
-            {/*<br/>*/}
-            {/*<span>sort: {settings.sort}</span>*/}
-            {/*<span>rootFolder: {settings.rootFolder}</span>*/}
-            {/*<span>bgmode: {settings.backgroundMode}</span>*/}
+            <h3>Icon Cache</h3>
+            <button onClick={_ => getBrowser().storage.local.clear()}>Clear Icon Cache</button>
+
         </div>
     )
 }

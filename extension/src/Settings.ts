@@ -24,12 +24,12 @@ export let defaultSettings: ISettings = {
 
 export function loadSettings(): Promise<ISettings> {
     // @ts-ignore
-    let tmp: Promise<ISettings> = getBrowser().storage.local.get(defaultSettings);
+    let tmp: Promise<ISettings> = getBrowser().storage.sync.get(defaultSettings);
     tmp.then(j => console.log(j))
     return tmp;
 }
 
 export function writeSettings(settings: ISettings) {
-    getBrowser().storage.local.set(settings);
+    getBrowser().storage.sync.set(settings);
 }
 

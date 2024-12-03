@@ -1,8 +1,9 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
-import folderIcon from "../assets/folder.svg"
-import folderIconOpen from "../assets/folder_open.svg"
+import FolderIcon from "../assets/folder.svg?react"
+import FolderIconOpen from "../assets/folder_open.svg?react"
 import {useState} from "react";
+import bookmark from "./Bookmark.tsx";
 
 /**
  * A component for the button used to open a bookmark folder.
@@ -15,16 +16,18 @@ function FolderButton(props: {data: BookmarkTreeNode}) {
 
     return(
         <>
-            <a className="bookmark draggable" onClick={() => setFolderOpen(!folderOpen)}>
-                <div className="icon-box">
-                    <img alt="Folder icon" src={folderOpen ? folderIconOpen : folderIcon}/>
-                </div>
-                <span>{props.data.title}</span>
-            </a>
+            <div className={"bookmark"}>
+                <a onClick={() => setFolderOpen(!folderOpen)}>
+                    <div className="icon-box">
+                        {folderOpen ? <FolderIconOpen/> : <FolderIcon/>}
+                    </div>
+                    <span>{props.data.title}</span>
+                </a>
+            </div>
             {folderOpen
-                && props.data.children
-                && props.data.children.length > 0
-                && (<FolderBody data={props.data}/>)}
+            && props.data.children
+            && props.data.children.length > 0
+            && (<FolderBody data={props.data}/>)}
         </>
 );
 }
