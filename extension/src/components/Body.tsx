@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
-import EditIcon from "../assets/edit.svg?react";
+import EditIcon from "../assets/move.svg?react";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
 import {defaultSettings, ISettings, loadSettings, writeSettings} from "../Settings.ts";
@@ -9,9 +9,15 @@ import {getBrowser} from "../main.tsx";
 
 export const Settings =
     React.createContext<[ISettings, (arg0: ISettings) => void]>([
-    defaultSettings,
-    () => {}
-]);
+        defaultSettings,
+        () => {}
+    ]);
+
+export const ActiveDrag =
+    React.createContext<[BookmarkTreeNode | null, (arg0: BookmarkTreeNode | null) => void]>([
+        null,
+        () => {}
+    ])
 
 /**
  * A component for the full body of the application
@@ -22,6 +28,7 @@ function Body() {
     const [settings, setSettings] = useState<ISettings>(defaultSettings);
     const [selectedBookmarkTree, setSelectedBookmarkTree] = useState<BookmarkTreeNode[]>([])
     const [fullBookmarkTree, setFullBookmarkTree] = useState<BookmarkTreeNode[] | null>([])
+    const [activeDrag, setActiveDrag] = useState<BookmarkTreeNode | null>(null);
 
     useEffect(() => {
         loadSettings().then(r => {
@@ -47,6 +54,7 @@ function Body() {
 
     return (
         <Settings.Provider value={[settings!, setSettings]}>
+        <ActiveDrag.Provider value={[activeDrag, setActiveDrag]}>
             {(() => {switch (settings.backgroundMode) {
                 case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
@@ -55,7 +63,7 @@ function Body() {
             <div id={"action-area"}>
                 {settings.editMode && <span>Move mode: Drag bookmarks to change order</span>}
                 <button onClick={_ => setSettings({...settings, editMode: !settings.editMode})}>
-                    <EditIcon fill={settings.editMode? "lime" : "currentColor"}/>
+                    <EditIcon className={settings.editMode? "enabled" : ""}/>
                 </button>
                 <button onClick={_ => setSettingsOpen(!settingsOpen)}>
                     <SettingsIcon/>
@@ -63,6 +71,7 @@ function Body() {
             </div>
             <SettingsEditor tree={fullBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
             {selectedBookmarkTree[0] && (<FolderBody data={selectedBookmarkTree[0]}/>)}
+        </ActiveDrag.Provider>
         </Settings.Provider>
     )
 }
