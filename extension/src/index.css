@@ -120,6 +120,7 @@ body > .folderBody {
 .icon-box > img {
   width: 100%;
   border-radius: 10px;
+  pointer-events: none;
 }
 
 .icon-box > svg {
@@ -257,13 +258,19 @@ a {
   }
 
   > svg {
-    background-color: #000000ba;
-    width: 65px;
-    height: 65px;
+    background-color: #FFF;
+    width: 50px;
+    height: 50px;
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 14px;
+    fill: black;
   }
+}
+
+.enabled {
+  background-color: white;
+  fill: black;
 }
 
 

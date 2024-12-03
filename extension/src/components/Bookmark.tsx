@@ -16,10 +16,12 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
     let [iconMode, setIconMode] = React.useState<"large" | "small" | "letter">("letter");
     let [settings, setSettings] = React.useContext(Settings);
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
+    let [bgColorPriority, setBgColorPriority] = React.useState(0);
     let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
     let [dropRight, setDropRight] = React.useState(false);
     let [dropLeft, setDropLeft] = React.useState(false);
     let [dropCenter, setDropCenter] = React.useState(false);
+    let [thisDragged, setThisDragged] = React.useState(false);
 
     useEffect(() => {
         faviconURL(props.data).then(r => {
@@ -30,29 +32,49 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
         })
     }, []);
 
+    useEffect(() => {
+        setDropLeft(false);
+        setDropRight(false);
+        setDropCenter(false);
+    }, [activeDrag]);
+
     function handleImageLoad(e: SyntheticEvent<HTMLImageElement, Event>) {
         if (e.currentTarget.naturalWidth >= 75 || favicon!.startsWith("data:image/svg+xml")) {
             setIconMode("large")
-        } else if(!bgColor) {
+        } else if(bgColorPriority < 2) {
             setBgColor(new ColorThief().getColor(e.currentTarget))
+            setBgColorPriority(2);
         }
     }
 
+    function handleDragStart(e: React.DragEvent<HTMLAnchorElement>) {
+        // e.dataTransfer.setData("text/bm-id", props.data.id);
+        // setActiveDrag(true);
+        console.log("data", e.dataTransfer.getData("text/bm-id").toString())
+    }
+
     function handleDrag(e: React.DragEvent<HTMLAnchorElement>) {
-        e.dataTransfer.dropEffect = "move";
-        e.dataTransfer.setData("bm-id", props.data.id);
-        setActiveDrag(true);
+        // e.dataTransfer.setData("text/bm-id", props.data.id);
+        setActiveDrag(props.data);
+        setThisDragged(true);
+        // e.dataTransfer.dropEffect = "move";
+    }
+
+    function handleDragEnd() {
+        setActiveDrag(null);
+        setThisDragged(false);
     }
 
     return(
         <div className={"bookmark"}>
-            <a draggable={settings.editMode} href={props.data.url} onDrag={handleDrag} onDragEnd={_ => setActiveDrag(false)}>
+            <a draggable={settings.editMode} href={props.data.url} onDragStart={handleDragStart} onDrag={handleDrag} onDragEnd={handleDragEnd}>
                 <div className={"icon-box " + (iconMode)} style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
                     {(() => { switch (iconMode) {
                         case "letter": {
                             let url = new URL(props.data.url!);
-                            if (!bgColor) {
+                            if (bgColorPriority < 1) {
                                 setBgColor(hashStringToColor(url.hostname));
+                                setBgColorPriority(1);
                             }
                             return (<span className={"letter"}>{url.hostname.charAt(0)}</span>)
                         }
@@ -66,7 +88,7 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
                 </div>
                 <span>{props.data.title}</span>
             </a>
-            {activeDrag && (
+            {activeDrag && !thisDragged && (
                 <div className={"drop-targets"}>
                     <div
                         className={"left"}
@@ -81,11 +103,11 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
                             setDropLeft(false)
                         }}
                         onDrop={e => {
-                            getBrowser().bookmarks.move(e.dataTransfer.getData("bm-id"), {
+                            getBrowser().bookmarks.move(activeDrag.id, {
                                 parentId: props.data.parentId,
                                 index: props.data.index
                             })
-                            console.log("dropped")
+                            location.reload()
                         }}
                         style={dropLeft ? undefined : {opacity: 0}}
                         // hidden={!dropLeft}
@@ -105,12 +127,12 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
                             setDropRight(false)
                         }}
                         onDrop={e => {
-                            getBrowser().bookmarks.move(e.dataTransfer.getData("bm-id"), {
+                            getBrowser().bookmarks.move(activeDrag.id, {
                                 parentId: props.data.parentId,
                                 index: (props.data.index! + 1)
                             })
+                            location.reload()
                             e.preventDefault()
-                            console.log("dropped right", e.dataTransfer.getData("bm-id"))
                         }}
                         style={dropRight ? undefined : {opacity: 0}}
                         // hidden={!dropRight}
@@ -134,7 +156,16 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
                         }}
                         onDrop={e => {
                             e.preventDefault();
-                            console.log("dropped")
+                            chrome.bookmarks.create({
+                                // type: "folder",
+                                parentId: props.data.parentId,
+                                index: props.data.index,
+                                title: "New Folder"
+                            }).then(r => {
+                                getBrowser().bookmarks.move(props.data.id, {parentId: r.id});
+                                getBrowser().bookmarks.move(activeDrag?.id, {parentId: r.id});
+                                location.reload()
+                            })
                         }}
                         style={dropCenter ? undefined : {opacity: 0}}
                         // hidden={!dropCenter}
@@ -156,7 +187,7 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
 async function faviconURL(data: BookmarkTreeNode) {
     let i = (await getBrowser().storage.local.get("icon-cache-"+data.id))["icon-cache-"+data.id];
     if (i) return i
-    if (i == null) return i;
+    // if (i == null) return i;
 
     const url = new URL('https://www.google.com/s2/favicons');
     url.searchParams.set("sz", "256");
