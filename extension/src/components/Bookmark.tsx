@@ -1,8 +1,9 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {SyntheticEvent, useEffect} from "react";
 import {getBrowser} from "../main.tsx";
-import {Settings} from "./Body.tsx";
+import {ActiveDrag, Settings} from "./Body.tsx";
 import ColorThief from 'colorthief'
+import CreateFolderIcon from "../assets/create_folder.svg?react"
 import react from "@vitejs/plugin-react";
 
 /**
@@ -15,6 +16,10 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
     let [iconMode, setIconMode] = React.useState<"large" | "small" | "letter">("letter");
     let [settings, setSettings] = React.useContext(Settings);
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
+    let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
+    let [dropRight, setDropRight] = React.useState(false);
+    let [dropLeft, setDropLeft] = React.useState(false);
+    let [dropCenter, setDropCenter] = React.useState(false);
 
     useEffect(() => {
         faviconURL(props.data).then(r => {
@@ -33,9 +38,15 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
         }
     }
 
+    function handleDrag(e: React.DragEvent<HTMLAnchorElement>) {
+        e.dataTransfer.dropEffect = "move";
+        e.dataTransfer.setData("bm-id", props.data.id);
+        setActiveDrag(true);
+    }
+
     return(
         <div className={"bookmark"}>
-            <a draggable={settings.editMode} href={props.data.url}>
+            <a draggable={settings.editMode} href={props.data.url} onDrag={handleDrag} onDragEnd={_ => setActiveDrag(false)}>
                 <div className={"icon-box " + (iconMode)} style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
                     {(() => { switch (iconMode) {
                         case "letter": {
@@ -55,6 +66,83 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
                 </div>
                 <span>{props.data.title}</span>
             </a>
+            {activeDrag && (
+                <div className={"drop-targets"}>
+                    <div
+                        className={"left"}
+                        onDragOver={e => {
+                            e.preventDefault()
+                            setDropLeft(true)
+                        }}
+                        onDragEnter={e =>{
+                            e.preventDefault()
+                        }}
+                        onDragLeave={_ => {
+                            setDropLeft(false)
+                        }}
+                        onDrop={e => {
+                            getBrowser().bookmarks.move(e.dataTransfer.getData("bm-id"), {
+                                parentId: props.data.parentId,
+                                index: props.data.index
+                            })
+                            console.log("dropped")
+                        }}
+                        style={dropLeft ? undefined : {opacity: 0}}
+                        // hidden={!dropLeft}
+                    >
+                        <div/>
+                    </div>
+                    <div
+                        className={"right"}
+                        onDragOver={e => {
+                            e.preventDefault();
+                            setDropRight(true);
+                        }}
+                        onDragEnter={e => {
+                            e.preventDefault();
+                        }}
+                        onDragLeave={_ => {
+                            setDropRight(false)
+                        }}
+                        onDrop={e => {
+                            getBrowser().bookmarks.move(e.dataTransfer.getData("bm-id"), {
+                                parentId: props.data.parentId,
+                                index: (props.data.index! + 1)
+                            })
+                            e.preventDefault()
+                            console.log("dropped right", e.dataTransfer.getData("bm-id"))
+                        }}
+                        style={dropRight ? undefined : {opacity: 0}}
+                        // hidden={!dropRight}
+                    >
+                        <div/>
+                    </div>
+                    <div
+                        className={"center"}
+                        onDragOver={e => {
+                            e.preventDefault()
+                            setDropCenter(true)
+                            // console.log("dropped")
+                        }}
+                        onDragEnter={e => {
+                            e.preventDefault()
+                            // console.log("enter")
+                        }}
+                        onDragLeave={_ => {
+                            setDropCenter(false)
+                            // console.log("exit")
+                        }}
+                        onDrop={e => {
+                            e.preventDefault();
+                            console.log("dropped")
+                        }}
+                        style={dropCenter ? undefined : {opacity: 0}}
+                        // hidden={!dropCenter}
+                    >
+                        <CreateFolderIcon/>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

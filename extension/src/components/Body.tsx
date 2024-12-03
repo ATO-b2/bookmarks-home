@@ -9,9 +9,15 @@ import {getBrowser} from "../main.tsx";
 
 export const Settings =
     React.createContext<[ISettings, (arg0: ISettings) => void]>([
-    defaultSettings,
-    () => {}
-]);
+        defaultSettings,
+        () => {}
+    ]);
+
+export const ActiveDrag =
+    React.createContext<[boolean, (arg0: boolean) => void]>([
+        false,
+        () => {}
+    ])
 
 /**
  * A component for the full body of the application
@@ -22,6 +28,7 @@ function Body() {
     const [settings, setSettings] = useState<ISettings>(defaultSettings);
     const [selectedBookmarkTree, setSelectedBookmarkTree] = useState<BookmarkTreeNode[]>([])
     const [fullBookmarkTree, setFullBookmarkTree] = useState<BookmarkTreeNode[] | null>([])
+    const [activeDrag, setActiveDrag] = useState(false);
 
     useEffect(() => {
         loadSettings().then(r => {
@@ -47,6 +54,7 @@ function Body() {
 
     return (
         <Settings.Provider value={[settings!, setSettings]}>
+        <ActiveDrag.Provider value={[activeDrag, setActiveDrag]}>
             {(() => {switch (settings.backgroundMode) {
                 case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
@@ -63,6 +71,7 @@ function Body() {
             </div>
             <SettingsEditor tree={fullBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
             {selectedBookmarkTree[0] && (<FolderBody data={selectedBookmarkTree[0]}/>)}
+        </ActiveDrag.Provider>
         </Settings.Provider>
     )
 }

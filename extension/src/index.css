@@ -191,7 +191,7 @@ a {
 
 /* Drop targets */
 .drop-targets {
-  pointer-events: none;
+  /*pointer-events: none;*/
   position: absolute;
   top: 0;
   /* bottom: 0; */
@@ -215,7 +215,7 @@ a {
   align-items: center;
 
   > div {
-    background-color: aqua;
+    background-color: white;
     height: 50%;
     width: 4px;
   }
@@ -231,7 +231,7 @@ a {
   align-items: center;
 
   > div {
-    background-color: aqua;
+    background-color: white;
     width: 4px;
     height: 50%;
   }
@@ -248,12 +248,21 @@ a {
   align-items: center;
 
   > span {
-    color: aqua;
+    /*color: aqua;*/
     font-size: 100px;
     /* background-color: aqua; */
     /* aspect-ratio: 1 / 1; */
     /* height: 100px; */
     font-family: monospace;
+  }
+
+  > svg {
+    background-color: #000000ba;
+    width: 65px;
+    height: 65px;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 14px;
   }
 }
 
