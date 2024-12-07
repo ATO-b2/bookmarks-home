@@ -20,6 +20,10 @@ function FolderButton(props: {data: BookmarkTreeNode}) {
     const [folderOpen, setFolderOpen] = useState(false);
 
     // Dragging
+    function handleDragStart(e: React.DragEvent<HTMLAnchorElement>) {
+        e.dataTransfer.setData("sowgro", "placeholder")
+    }
+
     function handleDrag() {
         setActiveDrag(props.data);
     }
