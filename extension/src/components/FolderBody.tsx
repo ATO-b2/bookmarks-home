@@ -1,32 +1,48 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import {ReactElement, useContext, useEffect, useState} from "react";
+import {Settings} from "./Body.tsx";
+import {getBrowser} from "../main.tsx";
 import Bookmark from "./Bookmark.tsx";
 import FolderButton from "./FolderButton.tsx";
-import {useContext} from "react";
-import {Settings} from "./Body.tsx";
 
 /**
  * A component that displays the contents of a bookmark folder
- *
- * @param props.data The BookmarkTreeNode with data for the folder
- * @constructor
  */
-function FolderBody (props: {data: BookmarkTreeNode}) {
-    const [settings, _] = useContext(Settings)
+function FolderBody (props: {id: string}) {
 
-    if (!props.data.children) return;
+    const [settings, ] = useContext(Settings)
 
-    let content = [...props.data.children].sort(getSortFunction(settings.sort))
-    if (settings.foldersFirst) {
-        let [bookmarks, folders] = separateFolders(content)
-        content = folders.concat(bookmarks)
+    const [children, setChildren] = useState<BookmarkTreeNode[]>([])
+
+    const updateBookmarks = () => {
+        getBrowser().bookmarks.getSubTree(props.id).then(r => {
+            let content = [...r[0].children!].sort(getSortFunction(settings.sort))
+            if (settings.foldersFirst) {
+                let [bookmarks, folders] = separateFolders(content)
+                content = folders.concat(bookmarks)
+            }
+            setChildren(content);
+        })
     }
+
+    useEffect(() => {
+        updateBookmarks();
+        // getBrowser().bookmarks.onRemoved.addListener((id: string, moveInfo) => {
+        //     if (moveInfo.parentId !== props.id) return;
+        //     updateBookmarks();
+        // })
+    }, []);
+
+    useEffect(() => {
+        updateBookmarks();
+    }, [settings]);
 
     return (
         <div className={"folderBody"}>
-            {content.map(child =>
+            {children.map(child =>
                 child.children
-                    ? <FolderButton data={child} />
-                    : <Bookmark data={child} />
+                    ? <FolderButton id={child.id} />
+                    : <Bookmark id={child.id} />
             )}
         </div>
     )

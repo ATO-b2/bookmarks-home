@@ -9,6 +9,7 @@ export interface ISettings {
     foregroundColor: string
     editMode: boolean
     rootFolder: string | null
+    keepFoldersOpen: boolean
 }
 
 export let defaultSettings: ISettings = {
@@ -20,6 +21,7 @@ export let defaultSettings: ISettings = {
     foregroundColor: "#FFFFFF",
     editMode: false,
     rootFolder: '0',
+    keepFoldersOpen: false
 }
 
 export function loadSettings(): Promise<ISettings> {

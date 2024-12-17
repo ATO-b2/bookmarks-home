@@ -1,33 +1,63 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import React, {SyntheticEvent, useEffect} from "react";
+import React, {SyntheticEvent, useContext, useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {ActiveDrag, Settings} from "./Body.tsx";
+import {ActiveDrag, ActiveEdit, Settings} from "./Body.tsx";
 import ColorThief from 'colorthief'
 import DropTargets from "./DropTargets.tsx";
+import ContextMenu from "./ContextMenu.tsx";
 
 /**
  * A component for a single bookmark
- *
- * @param props.data The BookmarkTreeNode with the data for the bookmark
  */
-function Bookmark(props: {data: BookmarkTreeNode}) {
-    let [settings, _] = React.useContext(Settings);
+function Bookmark(props: {id: string}) {
+    let [settings] = React.useContext(Settings);
     let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
+    const [, setActiveEdit] = useContext(ActiveEdit)
 
     let [favicon, setFavicon] = React.useState<string | null>(null);
     let [iconMode, setIconMode] = React.useState<"large" | "small" | "letter">("letter");
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
     let [bgColorPriority, setBgColorPriority] = React.useState(0);
-
+    const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
+    const [renameMode, setRenameMode] = useState(false);
 
     useEffect(() => {
-        faviconURL(props.data).then(r => {
+        getBrowser().bookmarks.get(props.id).then(r => {
+            setBmData(r[0]);
+        })
+
+        getBrowser().bookmarks.onChanged.addListener((id: string) => {
+            if (id !== props.id) return;
+            getBrowser().bookmarks.get(props.id).then(r => {
+                setBmData(r[0]);
+            })
+        })
+    }, []);
+
+    useEffect(() => {
+        if (!bmData) return;
+        faviconURL(bmData).then(r => {
             if (r) {
                 setFavicon(r)
                 setIconMode("small");
             }
         })
-    }, []);
+    }, [bmData]);
+
+    useEffect(() => {
+        let evl = () => {
+            console.log("clicked")
+            renameMode && setRenameMode(false);
+            console.log("evl unregistered")
+            document.body.removeEventListener('click', evl);
+        }
+        if (renameMode) {
+            console.log("evl registered")
+            document.body.addEventListener('click', evl);
+        }
+    }, [renameMode]);
+
+    if (!bmData) return;
 
     function handleImageLoad(e: SyntheticEvent<HTMLImageElement, Event>) {
         if (e.currentTarget.naturalWidth >= 75 || favicon!.startsWith("data:image/svg+xml")) {
@@ -39,71 +69,92 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
     }
 
     // Dragging
-    function handleDrag() {
-        setActiveDrag(props.data);
-    }
+    const handleDrag = () => {
+        setActiveDrag(bmData);
+    };
 
-    function handleDragEnd() {
+    const handleDragEnd = () => {
         setActiveDrag(null);
-    }
+    };
 
     // Dropping
-    function handleDropLeft() {
+    const handleDropLeft = () => {
         console.log("drop left bm")
         getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: props.data.parentId,
-            index: props.data.index
+            parentId: bmData.parentId,
+            index: bmData.index
         })
         location.reload()
-    }
+    };
 
-    function handleDropRight() {
+    const handleDropRight = () => {
         console.log("drop right bm")
         getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: props.data.parentId,
-            index: (props.data.index! + 1)
+            parentId: bmData.parentId,
+            index: (bmData.index! + 1)
         })
         location.reload();
-    }
+    };
 
-    function handleDropCenter() {
+    const handleDropCenter = () => {
         console.log("drop center bm")
         chrome.bookmarks.create({
             // type: "folder",
-            parentId: props.data.parentId,
-            index: props.data.index,
+            parentId: bmData.parentId,
+            index: bmData.index,
             title: "New Folder"
         }).then(r => {
-            getBrowser().bookmarks.move(props.data.id, {parentId: r.id});
+            getBrowser().bookmarks.move(bmData.id, {parentId: r.id});
             getBrowser().bookmarks.move(activeDrag!.id, {parentId: r.id});
             location.reload()
         })
-    }
+    };
+
+    const handleDelete = () => {
+        getBrowser().bookmarks.remove(bmData.id);
+        location.reload();
+    };
+
+    const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        setRenameMode(true)
+        // setActiveEdit(bmData);
+    };
 
     return(
         <div className={"bookmark"}>
-            <a href={props.data.url} draggable={settings.editMode} onDrag={handleDrag} onDragEnd={handleDragEnd}>
-                <div className={"icon-box " + (iconMode)} style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
-                    {(() => { switch (iconMode) {
-                        case "letter": {
-                            let url = new URL(props.data.url!);
-                            if (bgColorPriority < 1) {
-                                setBgColor(hashStringToColor(url.hostname));
-                                setBgColorPriority(1);
+            <a href={bmData.url} draggable={settings.editMode} onDrag={handleDrag} onDragEnd={handleDragEnd}>
+                <div className={"icon-box " + (iconMode)}
+                     style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
+                    {(() => {
+                        switch (iconMode) {
+                            case "letter": {
+                                let url = new URL(bmData.url!);
+                                if (bgColorPriority < 1) {
+                                    setBgColor(hashStringToColor(url.hostname));
+                                    setBgColorPriority(1);
+                                }
+                                return (<span className={"letter"}>{url.hostname.charAt(0)}</span>)
                             }
-                            return (<span className={"letter"}>{url.hostname.charAt(0)}</span>)
+                            case "small": {
+                                return (<img alt="Bookmark icon" src={favicon!} onLoad={handleImageLoad}/>)
+                            }
+                            case "large": {
+                                return (<img alt="Bookmark icon" src={favicon!}/>)
+                            }
                         }
-                        case "small": {
-                            return (<img alt="Bookmark icon" src={favicon!} onLoad={handleImageLoad}/>)
-                        }
-                        case "large": {
-                            return(<img alt="Bookmark icon" src={favicon!}/>)
-                        }
-                    }})()}
+                    })()}
                 </div>
-                <span>{props.data.title}</span>
+                {renameMode
+                    ? <input type={'text'}
+                              defaultValue={bmData.title}
+                              onChange={e => {
+                                  getBrowser().bookmarks.update(props.id, {title: e.target.value})
+                              }}/>
+                    : <span>{bmData.title}</span>}
             </a>
-            {activeDrag && activeDrag !== props.data &&
+            {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
+            {activeDrag && activeDrag !== bmData &&
                 <DropTargets onDropLeft={handleDropLeft} onDropRight={handleDropRight} onDropCenter={handleDropCenter}/>}
         </div>
     );
