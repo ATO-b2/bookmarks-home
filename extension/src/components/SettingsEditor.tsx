@@ -1,5 +1,5 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
-import React, {useContext} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import CloseIcon from "../assets/close.svg?react"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Body.tsx";
@@ -11,9 +11,16 @@ import {getBrowser} from "../main.tsx";
  * @param props.tree The full bookmarks tree (for use in the root selector)
  * @param props.isOpen State for weather the menu is open
  */
-function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  React.Dispatch<React.SetStateAction<boolean>>]}) {
+function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetStateAction<boolean>>]}) {
     const [settings, setSettings] = useContext(Settings)
     const [open, setOpen] = props.isOpen;
+    const [folders, setFolders] = useState<BookmarkTreeNode[] | undefined>()
+
+    useEffect(() => {
+        getFoldersFromTree().then(r => setFolders(r));
+    }, []);
+
+    if (!folders) return;
 
     return (
         <div id="settings-menu" className={open ? "open" : "closed"}>
@@ -74,13 +81,31 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
             <h3>Root folder</h3>
             <select value={settings.rootFolder!}
                     onChange={e => setSettings({...settings, rootFolder: e.target.value})}>
-                {getFoldersFromTree(props.tree).map(i =>
+                {folders.map(i =>
                     <option value={i.id}>{i.title ? i.title : "Untitled (id:" + i.id + ")"}</option>
                 )}
             </select>
 
             <h3>Icon Cache</h3>
-            <button onClick={_ => getBrowser().storage.local.clear()}>Clear Icon Cache</button>
+            <button className={"default"} onClick={_ => getBrowser().storage.local.clear()}>Clear Icon Cache</button>
+
+            {/*<h3>Editing</h3>*/}
+            {/*<label>*/}
+            {/*    <input type={"checkbox"}*/}
+            {/*           checked={!settings.editMode}*/}
+            {/*           onChange={e => setSettings({...settings, editMode: !e.target.checked})}*/}
+            {/*    />*/}
+            {/*    Prevent editing of bookmarks*/}
+            {/*</label>*/}
+
+            <h3>Open Folders</h3>
+            <label>
+                <input type={"checkbox"}
+                       checked={settings.keepFoldersOpen}
+                       onChange={e => setSettings({...settings, keepFoldersOpen: e.target.checked})}
+                />
+                Keep folders open
+            </label>
 
         </div>
     )
@@ -91,7 +116,8 @@ function SettingsEditor(props: {tree: BookmarkTreeNode[], isOpen: [boolean,  Rea
  *
  * @param tree The full tree to walk through
  */
-function getFoldersFromTree(tree: BookmarkTreeNode[]) {
+async function getFoldersFromTree() {
+    let tree = await getBrowser().bookmarks.getTree();
     let folderList: BookmarkTreeNode[] = [];
     rec(tree);
 

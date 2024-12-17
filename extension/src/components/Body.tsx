@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
-import EditIcon from "../assets/move.svg?react";
+import EditIcon from "../assets/edit.svg?react";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
 import {defaultSettings, ISettings, loadSettings, writeSettings} from "../Settings.ts";
 import {getBrowser} from "../main.tsx";
+import BMEditor from "./BMEditor.tsx";
+import EditOffIcon from "../assets/edit_off.svg?react";
 
 export const Settings =
     React.createContext<[ISettings, (arg0: ISettings) => void]>([
@@ -19,58 +21,58 @@ export const ActiveDrag =
         () => {}
     ])
 
+export const ActiveEdit =
+    React.createContext<[BookmarkTreeNode | null, (arg0: BookmarkTreeNode | null) => void]>([
+        null,
+        () => {}
+    ])
+
 /**
  * A component for the full body of the application
  * Also stores the trees and settings
  */
 function Body() {
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const [settings, setSettings] = useState<ISettings>(defaultSettings);
-    const [selectedBookmarkTree, setSelectedBookmarkTree] = useState<BookmarkTreeNode[]>([])
-    const [fullBookmarkTree, setFullBookmarkTree] = useState<BookmarkTreeNode[] | null>([])
+    const [settings, setSettings] = useState<ISettings | undefined>(undefined);
     const [activeDrag, setActiveDrag] = useState<BookmarkTreeNode | null>(null);
+    const [activeEdit, setActiveEdit] = useState<BookmarkTreeNode | null>(null);
 
     useEffect(() => {
         loadSettings().then(r => {
             setSettings(r);
         })
-        getBrowser().bookmarks.getTree().then(t => {
-            setFullBookmarkTree(t);
-        })
     }, [])
 
     useEffect(() => {
-        writeSettings(settings);
-        if (settings.rootFolder) {
-            getBrowser().bookmarks.getSubTree(settings.rootFolder).then(t => {
-                setSelectedBookmarkTree(t);
-            });
-        } else {
-            getBrowser().bookmarks.getTree().then(t => {
-                setSelectedBookmarkTree(t);
-            })
+        if (settings) {
+            writeSettings(settings);
         }
     }, [settings]);
+
+    if (!settings) return;
 
     return (
         <Settings.Provider value={[settings!, setSettings]}>
         <ActiveDrag.Provider value={[activeDrag, setActiveDrag]}>
+        <ActiveEdit.Provider value={[activeEdit, setActiveEdit]}>
             {(() => {switch (settings.backgroundMode) {
                 case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
             }})()}
             <style>{"body > .folderBody, a {color: " + settings.foregroundColor + "; }"}</style>
             <div id={"action-area"}>
-                {settings.editMode && <span>Move mode: Drag bookmarks to change order</span>}
+                {settings.editMode && <span>Edit mode: Drag bookmarks to change order</span>}
                 <button onClick={_ => setSettings({...settings, editMode: !settings.editMode})}>
-                    <EditIcon className={settings.editMode? "enabled" : ""}/>
+                    {settings.editMode ? <EditIcon/> : <EditOffIcon/>}
                 </button>
                 <button onClick={_ => setSettingsOpen(!settingsOpen)}>
                     <SettingsIcon/>
                 </button>
             </div>
-            <SettingsEditor tree={fullBookmarkTree!} isOpen={[settingsOpen, setSettingsOpen]}/>
-            {selectedBookmarkTree[0] && (<FolderBody data={selectedBookmarkTree[0]}/>)}
+            <SettingsEditor isOpen={[settingsOpen, setSettingsOpen]}/>
+            <BMEditor/>
+            <FolderBody id={settings.rootFolder || '0'}/>
+        </ActiveEdit.Provider>
         </ActiveDrag.Provider>
         </Settings.Provider>
     )

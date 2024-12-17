@@ -1,42 +1,63 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import React, {SyntheticEvent, useEffect} from "react";
+import React, {SyntheticEvent, useContext, useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {ActiveDrag, Settings} from "./Body.tsx";
+import {ActiveDrag, ActiveEdit, Settings} from "./Body.tsx";
 import ColorThief from 'colorthief'
-import CreateFolderIcon from "../assets/create_folder.svg?react"
-import react from "@vitejs/plugin-react";
+import DropTargets from "./DropTargets.tsx";
+import ContextMenu from "./ContextMenu.tsx";
 
 /**
  * A component for a single bookmark
- *
- * @param props.data The BookmarkTreeNode with the data for the bookmark
  */
-function Bookmark(props: {data: BookmarkTreeNode}) {
+function Bookmark(props: {id: string}) {
+    let [settings] = React.useContext(Settings);
+    let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
+    const [, setActiveEdit] = useContext(ActiveEdit)
+
     let [favicon, setFavicon] = React.useState<string | null>(null);
     let [iconMode, setIconMode] = React.useState<"large" | "small" | "letter">("letter");
-    let [settings, setSettings] = React.useContext(Settings);
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
     let [bgColorPriority, setBgColorPriority] = React.useState(0);
-    let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
-    let [dropRight, setDropRight] = React.useState(false);
-    let [dropLeft, setDropLeft] = React.useState(false);
-    let [dropCenter, setDropCenter] = React.useState(false);
-    let [thisDragged, setThisDragged] = React.useState(false);
+    const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
+    const [renameMode, setRenameMode] = useState(false);
 
     useEffect(() => {
-        faviconURL(props.data).then(r => {
+        getBrowser().bookmarks.get(props.id).then(r => {
+            setBmData(r[0]);
+        })
+
+        getBrowser().bookmarks.onChanged.addListener((id: string) => {
+            if (id !== props.id) return;
+            getBrowser().bookmarks.get(props.id).then(r => {
+                setBmData(r[0]);
+            })
+        })
+    }, []);
+
+    useEffect(() => {
+        if (!bmData) return;
+        faviconURL(bmData).then(r => {
             if (r) {
                 setFavicon(r)
                 setIconMode("small");
             }
         })
-    }, []);
+    }, [bmData]);
 
     useEffect(() => {
-        setDropLeft(false);
-        setDropRight(false);
-        setDropCenter(false);
-    }, [activeDrag]);
+        let evl = () => {
+            console.log("clicked")
+            renameMode && setRenameMode(false);
+            console.log("evl unregistered")
+            document.body.removeEventListener('click', evl);
+        }
+        if (renameMode) {
+            console.log("evl registered")
+            document.body.addEventListener('click', evl);
+        }
+    }, [renameMode]);
+
+    if (!bmData) return;
 
     function handleImageLoad(e: SyntheticEvent<HTMLImageElement, Event>) {
         if (e.currentTarget.naturalWidth >= 75 || favicon!.startsWith("data:image/svg+xml")) {
@@ -47,133 +68,94 @@ function Bookmark(props: {data: BookmarkTreeNode}) {
         }
     }
 
-    function handleDragStart(e: React.DragEvent<HTMLAnchorElement>) {
-        // e.dataTransfer.setData("text/bm-id", props.data.id);
-        // setActiveDrag(true);
-        console.log("data", e.dataTransfer.getData("text/bm-id").toString())
-    }
+    // Dragging
+    const handleDrag = () => {
+        setActiveDrag(bmData);
+    };
 
-    function handleDrag(e: React.DragEvent<HTMLAnchorElement>) {
-        // e.dataTransfer.setData("text/bm-id", props.data.id);
-        setActiveDrag(props.data);
-        setThisDragged(true);
-        // e.dataTransfer.dropEffect = "move";
-    }
-
-    function handleDragEnd() {
+    const handleDragEnd = () => {
         setActiveDrag(null);
-        setThisDragged(false);
-    }
+    };
+
+    // Dropping
+    const handleDropLeft = () => {
+        console.log("drop left bm")
+        getBrowser().bookmarks.move(activeDrag!.id, {
+            parentId: bmData.parentId,
+            index: bmData.index
+        })
+        location.reload()
+    };
+
+    const handleDropRight = () => {
+        console.log("drop right bm")
+        getBrowser().bookmarks.move(activeDrag!.id, {
+            parentId: bmData.parentId,
+            index: (bmData.index! + 1)
+        })
+        location.reload();
+    };
+
+    const handleDropCenter = () => {
+        console.log("drop center bm")
+        chrome.bookmarks.create({
+            // type: "folder",
+            parentId: bmData.parentId,
+            index: bmData.index,
+            title: "New Folder"
+        }).then(r => {
+            getBrowser().bookmarks.move(bmData.id, {parentId: r.id});
+            getBrowser().bookmarks.move(activeDrag!.id, {parentId: r.id});
+            location.reload()
+        })
+    };
+
+    const handleDelete = () => {
+        getBrowser().bookmarks.remove(bmData.id);
+        location.reload();
+    };
+
+    const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        setRenameMode(true)
+        // setActiveEdit(bmData);
+    };
 
     return(
         <div className={"bookmark"}>
-            <a draggable={settings.editMode} href={props.data.url} onDragStart={handleDragStart} onDrag={handleDrag} onDragEnd={handleDragEnd}>
-                <div className={"icon-box " + (iconMode)} style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
-                    {(() => { switch (iconMode) {
-                        case "letter": {
-                            let url = new URL(props.data.url!);
-                            if (bgColorPriority < 1) {
-                                setBgColor(hashStringToColor(url.hostname));
-                                setBgColorPriority(1);
+            <a href={bmData.url} draggable={settings.editMode} onDrag={handleDrag} onDragEnd={handleDragEnd}>
+                <div className={"icon-box " + (iconMode)}
+                     style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
+                    {(() => {
+                        switch (iconMode) {
+                            case "letter": {
+                                let url = new URL(bmData.url!);
+                                if (bgColorPriority < 1) {
+                                    setBgColor(hashStringToColor(url.hostname));
+                                    setBgColorPriority(1);
+                                }
+                                return (<span className={"letter"}>{url.hostname.charAt(0)}</span>)
                             }
-                            return (<span className={"letter"}>{url.hostname.charAt(0)}</span>)
+                            case "small": {
+                                return (<img alt="Bookmark icon" src={favicon!} onLoad={handleImageLoad}/>)
+                            }
+                            case "large": {
+                                return (<img alt="Bookmark icon" src={favicon!}/>)
+                            }
                         }
-                        case "small": {
-                            return (<img alt="Bookmark icon" src={favicon!} onLoad={handleImageLoad}/>)
-                        }
-                        case "large": {
-                            return(<img alt="Bookmark icon" src={favicon!}/>)
-                        }
-                    }})()}
+                    })()}
                 </div>
-                <span>{props.data.title}</span>
+                {renameMode
+                    ? <input type={'text'}
+                              defaultValue={bmData.title}
+                              onChange={e => {
+                                  getBrowser().bookmarks.update(props.id, {title: e.target.value})
+                              }}/>
+                    : <span>{bmData.title}</span>}
             </a>
-            {activeDrag && !thisDragged && (
-                <div className={"drop-targets"}>
-                    <div
-                        className={"left"}
-                        onDragOver={e => {
-                            e.preventDefault()
-                            setDropLeft(true)
-                        }}
-                        onDragEnter={e =>{
-                            e.preventDefault()
-                        }}
-                        onDragLeave={_ => {
-                            setDropLeft(false)
-                        }}
-                        onDrop={e => {
-                            getBrowser().bookmarks.move(activeDrag.id, {
-                                parentId: props.data.parentId,
-                                index: props.data.index
-                            })
-                            location.reload()
-                        }}
-                        style={dropLeft ? undefined : {opacity: 0}}
-                        // hidden={!dropLeft}
-                    >
-                        <div/>
-                    </div>
-                    <div
-                        className={"right"}
-                        onDragOver={e => {
-                            e.preventDefault();
-                            setDropRight(true);
-                        }}
-                        onDragEnter={e => {
-                            e.preventDefault();
-                        }}
-                        onDragLeave={_ => {
-                            setDropRight(false)
-                        }}
-                        onDrop={e => {
-                            getBrowser().bookmarks.move(activeDrag.id, {
-                                parentId: props.data.parentId,
-                                index: (props.data.index! + 1)
-                            })
-                            location.reload()
-                            e.preventDefault()
-                        }}
-                        style={dropRight ? undefined : {opacity: 0}}
-                        // hidden={!dropRight}
-                    >
-                        <div/>
-                    </div>
-                    <div
-                        className={"center"}
-                        onDragOver={e => {
-                            e.preventDefault()
-                            setDropCenter(true)
-                            // console.log("dropped")
-                        }}
-                        onDragEnter={e => {
-                            e.preventDefault()
-                            // console.log("enter")
-                        }}
-                        onDragLeave={_ => {
-                            setDropCenter(false)
-                            // console.log("exit")
-                        }}
-                        onDrop={e => {
-                            e.preventDefault();
-                            chrome.bookmarks.create({
-                                // type: "folder",
-                                parentId: props.data.parentId,
-                                index: props.data.index,
-                                title: "New Folder"
-                            }).then(r => {
-                                getBrowser().bookmarks.move(props.data.id, {parentId: r.id});
-                                getBrowser().bookmarks.move(activeDrag?.id, {parentId: r.id});
-                                location.reload()
-                            })
-                        }}
-                        style={dropCenter ? undefined : {opacity: 0}}
-                        // hidden={!dropCenter}
-                    >
-                        <CreateFolderIcon/>
-                    </div>
-                </div>
-            )}
+            {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
+            {activeDrag && activeDrag !== bmData &&
+                <DropTargets onDropLeft={handleDropLeft} onDropRight={handleDropRight} onDropCenter={handleDropCenter}/>}
         </div>
     );
 }
@@ -211,7 +193,7 @@ function toDataURL(url:string):string {
 }
 
 function djb2(str: string){
-    var hash = 5381;
+    let hash = 5381;
     for (var i = 0; i < str.length; i++) {
         hash = ((hash << 5) + hash) + str.charCodeAt(i); /* hash * 33 + c */
     }
@@ -219,10 +201,10 @@ function djb2(str: string){
 }
 
 function hashStringToColor(str: string): [number, number, number] {
-    var hash = djb2(str);
-    var r = (hash & 0xFF0000) >> 16;
-    var g = (hash & 0x00FF00) >> 8;
-    var b = hash & 0x0000FF;
+    let hash = djb2(str);
+    let r = (hash & 0xFF0000) >> 16;
+    let g = (hash & 0x00FF00) >> 8;
+    let b = hash & 0x0000FF;
     return [r, g, b];
 }
 
