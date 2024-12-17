@@ -7,5 +7,4 @@ beyond the bar
 
 ### Build instructions
 - Install libraries `npm install`
-- Live server for testing: `npm run dev`
 - create unpacked extension in dist folder `npm run build`
