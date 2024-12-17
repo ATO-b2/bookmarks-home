@@ -88,6 +88,7 @@ function FolderButton(props: {id: string}) {
 
     const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
+        setActiveEdit(null);
         setActiveEdit(bmData);
     };
 
