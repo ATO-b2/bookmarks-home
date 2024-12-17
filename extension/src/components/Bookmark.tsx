@@ -19,7 +19,6 @@ function Bookmark(props: {id: string}) {
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
     let [bgColorPriority, setBgColorPriority] = React.useState(0);
     const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
-    const [renameMode, setRenameMode] = useState(false);
 
     useEffect(() => {
         getBrowser().bookmarks.get(props.id).then(r => {
@@ -43,19 +42,6 @@ function Bookmark(props: {id: string}) {
             }
         })
     }, [bmData]);
-
-    useEffect(() => {
-        let evl = () => {
-            console.log("clicked")
-            renameMode && setRenameMode(false);
-            console.log("evl unregistered")
-            document.body.removeEventListener('click', evl);
-        }
-        if (renameMode) {
-            console.log("evl registered")
-            document.body.addEventListener('click', evl);
-        }
-    }, [renameMode]);
 
     if (!bmData) return;
 
@@ -117,7 +103,8 @@ function Bookmark(props: {id: string}) {
 
     const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        setRenameMode(true)
+        setActiveEdit(null);
+        setActiveEdit(bmData);
         // setActiveEdit(bmData);
     };
 
@@ -145,13 +132,7 @@ function Bookmark(props: {id: string}) {
                         }
                     })()}
                 </div>
-                {renameMode
-                    ? <input type={'text'}
-                              defaultValue={bmData.title}
-                              onChange={e => {
-                                  getBrowser().bookmarks.update(props.id, {title: e.target.value})
-                              }}/>
-                    : <span>{bmData.title}</span>}
+                <span>{bmData.title}</span>
             </a>
             {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
             {activeDrag && activeDrag !== bmData &&
