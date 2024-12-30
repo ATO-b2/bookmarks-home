@@ -50,13 +50,11 @@ function FolderButton(props: {id: string}) {
     };
 
     const handleDragEnd = () => {
-        console.log("drop end")
         setActiveDrag(null);
     };
 
     // Dropping
     const handleDropLeft = () => {
-        console.log("drop left folder")
         getBrowser().bookmarks.move(activeDrag!.id, {
             parentId: bmData.parentId,
             index: bmData.index
@@ -65,7 +63,6 @@ function FolderButton(props: {id: string}) {
     };
 
     const handleDropRight = () => {
-        console.log("drop right folder")
         getBrowser().bookmarks.move(activeDrag!.id, {
             parentId: bmData.parentId,
             index: (bmData.index! + 1)
@@ -74,13 +71,13 @@ function FolderButton(props: {id: string}) {
     };
 
     const handleDropCenter = () => {
-        console.log("drop center folder")
         getBrowser().bookmarks.move(activeDrag!.id, {
             parentId: bmData.id
         });
         location.reload()
     };
 
+    // actions
     const handleDelete = () => {
         getBrowser().bookmarks.removeTree(bmData.id);
         location.reload();
