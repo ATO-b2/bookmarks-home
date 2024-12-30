@@ -26,6 +26,6 @@ let x = Array.from(document.getElementsByTagName("link"))
 console.log("found icons", x.map(elem => elem.outerHTML));
 x = x.map(elem => elem.href);
 
-getBrowser().runtime.sendMessage([window.location.href, x[0]]).catch(() => {
+getBrowser().runtime.sendMessage([window.location.href, x]).catch(() => {
     console.log("failed to send message")
 })
