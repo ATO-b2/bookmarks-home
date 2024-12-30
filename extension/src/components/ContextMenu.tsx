@@ -9,9 +9,7 @@ function ContextMenu(props: {onEdit: (e: React.MouseEvent<HTMLButtonElement>) =>
 
     useEffect(() => {
         let evl = () => {
-            console.log("clicked")
             open && setOpen(false);
-            console.log("evl unregistered")
             document.body.removeEventListener('click', evl);
         }
         if (open) {
