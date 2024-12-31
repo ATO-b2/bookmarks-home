@@ -105,7 +105,7 @@ function IconPre(props: {bmUrl: string, id:string}) {
         })
     }, []);
 
-    if (!data) return;
+    // if (!data) return;
     return <BMIcon bmUrl={props.bmUrl} imgSrc={data}/>
 }
 
@@ -125,13 +125,13 @@ async function findIcon(bmUrl: string, id:string) {
     //     return selectedUrl[0];
     // }
 
-    const url = new URL('https://www.google.com/s2/favicons');
-    url.searchParams.set("sz", "256");
-    url.searchParams.set("domain_url", bmUrl);
-    let resp = await fetch(url)
-    let imgData = resp.ok ? await toDataURL(url.toString()) : null;
-    getBrowser().storage.local.set({["icon-cache-"+bmUrl]: imgData});
-    return imgData;
+    // const url = new URL('https://www.google.com/s2/favicons');
+    // url.searchParams.set("sz", "256");
+    // url.searchParams.set("domain_url", bmUrl);
+    // let resp = await fetch(url)
+    // let imgData = resp.ok ? await toDataURL(url.toString()) : null;
+    // getBrowser().storage.local.set({["icon-cache-"+bmUrl]: imgData});
+    // return imgData;
 }
 
 function toDataURL(url: string): string {

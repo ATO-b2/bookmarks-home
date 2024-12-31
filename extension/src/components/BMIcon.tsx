@@ -20,6 +20,12 @@ function BMIcon(props: {imgSrc?: string, bmUrl?:string}) {
         setIconMode("letter");
     }
 
+    if (!props.imgSrc) {
+        let url = new URL(props.bmUrl!);
+        bgColor = hashStringToColor(url.hostname)
+        iconMode = "letter"
+    }
+
     return (
         <div className={"icon-box " + (iconMode)}
              style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
