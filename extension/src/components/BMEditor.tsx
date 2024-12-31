@@ -2,17 +2,25 @@ import React, {useContext, useEffect, useState} from "react";
 import CloseIcon from "../assets/close.svg?react"
 import {ActiveEdit} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
+import RadioButtonGroup from "./RadioButtonGroup.tsx";
 
 
 function BMEditor() {
     const [activeEdit, setActiveEdit] = useContext(ActiveEdit);
 
     const [iconOptions, setIconOptions] = useState<string[]>([]);
+    const [gIcon, setGIcon] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!activeEdit) return;
+
+        const gURL = new URL('https://www.google.com/s2/favicons');
+        gURL.searchParams.set("sz", "256");
+        gURL.searchParams.set("domain_url", activeEdit.url!);
+        setGIcon(gURL.toString());
+
         getBrowser().storage.local.get("icon-aval-"+activeEdit.id).then( r => {
-            setIconOptions(r["icon-aval-"+activeEdit.id]);
+            setIconOptions(r["icon-aval-" + activeEdit.id]);
         });
     }, [activeEdit]);
 
@@ -39,13 +47,21 @@ function BMEditor() {
                 </>)}
 
                 <h3>Icon</h3>
-                {/*<RadioButtonGroup value={undefined}>*/}
-                    {iconOptions && iconOptions.map(s =>
-                        // <option value={s}>
-                            <img src={s}/>
-                        // </option>
-                    )}
-                {/*</RadioButtonGroup>*/}
+                <h4>Found on the site</h4>
+                {/*{ iconOptions &&*/}
+                {/*<RadioButtonGroup value={undefined} children={*/}
+                {/*    iconOptions.map(s => {*/}
+                {/*        return { props: {*/}
+                {/*            value: s,*/}
+                {/*            children: ()*/}
+                {/*        }}*/}
+                {/*    }*/}
+                {/*    )}*/}
+                {/*/>}*/}
+                <h4>From Google</h4>
+                <img src={gIcon}/>
+                <h4>Custom</h4>
+                <p>TODO</p>
             </>)}
         </div>
     );
