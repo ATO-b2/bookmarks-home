@@ -15,14 +15,18 @@ function BMIcon(props: {imgSrc?: string, bmUrl?:string}) {
     }
 
     function handleImageError() {
-        let url = new URL(props.bmUrl!);
-        setBgColor(hashStringToColor(url.hostname))
+        if (props.bmUrl) {
+            let url = new URL(props.bmUrl);
+            setBgColor(hashStringToColor(url.hostname))
+        }
         setIconMode("letter");
     }
 
     if (!props.imgSrc) {
-        let url = new URL(props.bmUrl!);
-        bgColor = hashStringToColor(url.hostname)
+        if (props.bmUrl) {
+            let url = new URL(props.bmUrl);
+            bgColor = hashStringToColor(url.hostname)
+        }
         iconMode = "letter"
     }
 
@@ -31,7 +35,10 @@ function BMIcon(props: {imgSrc?: string, bmUrl?:string}) {
              style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
             {(() => { switch (iconMode) {
                 case "letter": {
-                    return (<span className={"letter"}>{new URL(props.bmUrl!).hostname.charAt(0)}</span>)
+                    return (<span className={"letter"}>{ props.bmUrl
+                        ? new URL(props.bmUrl).hostname.charAt(0)
+                        : '?'
+                    }</span>)
                 }
                 case "small": {
                     return (<img alt="Bookmark icon" src={props.imgSrc}/>)

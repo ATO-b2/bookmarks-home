@@ -5,6 +5,7 @@ import {ActiveDrag, ActiveEdit, Settings} from "./Body.tsx";
 import DropTargets from "./DropTargets.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import BMIcon from "./BMIcon.tsx";
+import {getIcon} from "../Icons.ts";
 
 /**
  * A component for a single bookmark
@@ -84,7 +85,7 @@ function Bookmark(props: {id: string}) {
     return(
         <div className={"bookmark"}>
             <a href={bmData.url} draggable={settings.editMode} onDrag={handleDrag} onDragEnd={handleDragEnd}>
-                <IconPre id={bmData.id} bmUrl={bmData.url!}/>
+                <IconPre bmData={bmData}/>
                 <span>{bmData.title}</span>
             </a>
             {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
@@ -96,52 +97,13 @@ function Bookmark(props: {id: string}) {
 
 export default Bookmark;
 
-function IconPre(props: {bmUrl: string, id:string}) {
-    const [data, setData] = useState()
+function IconPre(props: {bmData: BookmarkTreeNode}) {
+    const [data, setData] = useState<string>()
 
     useEffect(() => {
-        findIcon(props.bmUrl, props.id).then(r => {
-            setData(r);
-        })
+        getIcon(props.bmData, setData)
     }, []);
 
     // if (!data) return;
-    return <BMIcon bmUrl={props.bmUrl} imgSrc={data}/>
-}
-
-/**
- * 1. check for icon cache
- * 2. check if the user selected an icon
- * 3. use the best icon from the available icons
- * 4. search googles icon database
- */
-async function findIcon(bmUrl: string, id:string) {
-    let cachedIcon = (await getBrowser().storage.local.get("icon-cache-"+id))["icon-cache-"+id];
-    if (cachedIcon) return cachedIcon
-
-    // let selectedUrl: string[] = (await getBrowser().storage.local.get("icon-aval-"+data.id))["icon-aval-"+data.id]
-    // if (selectedUrl.length > 0) {
-    //     await getBrowser().storage.local.set({["icon-cache-"+data.id]: selectedUrl[0]});
-    //     return selectedUrl[0];
-    // }
-
-    // const url = new URL('https://www.google.com/s2/favicons');
-    // url.searchParams.set("sz", "256");
-    // url.searchParams.set("domain_url", bmUrl);
-    // let resp = await fetch(url)
-    // let imgData = resp.ok ? await toDataURL(url.toString()) : null;
-    // getBrowser().storage.local.set({["icon-cache-"+bmUrl]: imgData});
-    // return imgData;
-}
-
-function toDataURL(url: string): string {
-    // @ts-ignore
-    return fetch(url)
-        .then(response => response.blob())
-        .then(blob => new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onloadend = () => resolve(reader.result)
-            reader.onerror = reject
-            reader.readAsDataURL(blob)
-        }))
+    return <BMIcon bmUrl={props.bmData.url} imgSrc={data}/>
 }

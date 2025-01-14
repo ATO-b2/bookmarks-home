@@ -3,6 +3,7 @@ import CloseIcon from "../assets/close.svg?react"
 import {ActiveEdit} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
+import BMIcon from "./BMIcon.tsx";
 
 
 function BMEditor() {
@@ -48,20 +49,21 @@ function BMEditor() {
 
                 <h3>Icon</h3>
                 <h4>Found on the site</h4>
-                {/*{ iconOptions &&*/}
-                {/*<RadioButtonGroup value={undefined} children={*/}
-                {/*    iconOptions.map(s => {*/}
-                {/*        return { props: {*/}
-                {/*            value: s,*/}
-                {/*            children: ()*/}
-                {/*        }}*/}
-                {/*    }*/}
-                {/*    )}*/}
-                {/*/>}*/}
+                <div className={"icon-selector"}>
+                    { iconOptions &&
+                    // <RadioButtonGroup value={undefined} children={
+                        iconOptions.map(s =>
+                            <BMIcon imgSrc={s}/>
+                        )
+                    // />
+                    }
+                </div>
                 <h4>From Google</h4>
-                <img src={gIcon}/>
+                <div className={"icon-selector"}>
+                    <BMIcon imgSrc={gIcon}/>
+                </div>
                 <h4>Custom</h4>
-                <p>TODO</p>
+                <button className={"default"}>Upload</button>
             </>)}
         </div>
     );
