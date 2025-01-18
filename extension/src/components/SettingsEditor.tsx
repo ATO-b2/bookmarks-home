@@ -34,7 +34,7 @@ function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetState
                               onChange={e => {
                                   setSettings({...settings, sort: e})
                               }}>
-                <option value={"from-bookmarks"}>From Bookmarks</option>
+                <option value={"from-bookmarks"}>Custom Order</option>
                 <option value={"alphabetical"}>Alphabetical</option>
                 <option value={"recent"}>Recently used</option>
             </RadioButtonGroup>
@@ -113,8 +113,6 @@ function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetState
 
 /**
  * Walks the tree and creates a list of the folders
- *
- * @param tree The full tree to walk through
  */
 async function getFoldersFromTree() {
     let tree = await getBrowser().bookmarks.getTree();
