@@ -27,10 +27,18 @@ function FolderBody (props: {id: string}) {
 
     useEffect(() => {
         updateBookmarks();
-        // getBrowser().bookmarks.onRemoved.addListener((id: string, moveInfo) => {
-        //     if (moveInfo.parentId !== props.id) return;
-        //     updateBookmarks();
-        // })
+        getBrowser().bookmarks.onRemoved.addListener((id: string, moveInfo) => {
+            if (moveInfo.parentId !== props.id) return;
+            updateBookmarks();
+        })
+        getBrowser().bookmarks.onMoved.addListener((id: string, moveInfo) => {
+            if (moveInfo.parentId !== props.id && moveInfo.oldParentId !== props.id ) return;
+            updateBookmarks();
+        })
+        getBrowser().bookmarks.onCreated.addListener((id: string, moveInfo) => {
+            if (moveInfo.parentId !== props.id) return;
+            updateBookmarks();
+        })
     }, []);
 
     useEffect(() => {
@@ -43,8 +51,8 @@ function FolderBody (props: {id: string}) {
         <div className={"folderBody"}>
             {children.map(child =>
                 child.children
-                    ? <FolderButton id={child.id} />
-                    : <Bookmark id={child.id} />
+                    ? <FolderButton id={child.id} key={child.id}/>
+                    : <Bookmark id={child.id} key={child.id}/>
             )}
         </div>
     )

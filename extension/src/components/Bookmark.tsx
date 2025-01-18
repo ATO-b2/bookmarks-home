@@ -47,7 +47,7 @@ function Bookmark(props: {id: string}) {
             parentId: bmData.parentId,
             index: bmData.index
         })
-        location.reload()
+        // location.reload()
     };
 
     const handleDropRight = () => {
@@ -55,7 +55,7 @@ function Bookmark(props: {id: string}) {
             parentId: bmData.parentId,
             index: (bmData.index! + 1)
         })
-        location.reload();
+        // location.reload();
     };
 
     const handleDropCenter = () => {
@@ -66,14 +66,14 @@ function Bookmark(props: {id: string}) {
         }).then(r => {
             getBrowser().bookmarks.move(bmData.id, {parentId: r.id});
             getBrowser().bookmarks.move(activeDrag!.id, {parentId: r.id});
-            location.reload()
+            // location.reload()
         })
     };
 
     // actions
     const handleDelete = () => {
         getBrowser().bookmarks.remove(bmData.id);
-        location.reload();
+        // location.reload();
     };
 
     const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {

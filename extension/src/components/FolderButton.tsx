@@ -59,7 +59,7 @@ function FolderButton(props: {id: string}) {
             parentId: bmData.parentId,
             index: bmData.index
         })
-        location.reload()
+        // location.reload()
     };
 
     const handleDropRight = () => {
@@ -67,20 +67,20 @@ function FolderButton(props: {id: string}) {
             parentId: bmData.parentId,
             index: (bmData.index! + 1)
         })
-        location.reload();
+        // location.reload();
     };
 
     const handleDropCenter = () => {
         getBrowser().bookmarks.move(activeDrag!.id, {
             parentId: bmData.id
         });
-        location.reload()
+        // location.reload()
     };
 
     // actions
     const handleDelete = () => {
         getBrowser().bookmarks.removeTree(bmData.id);
-        location.reload();
+        // location.reload();
     };
 
     const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
