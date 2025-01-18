@@ -32,7 +32,7 @@ async function getIcon(bmData: BookmarkTreeNode, setIcon: (icon: string) => void
 async function iconFromGoogle(bmData: BookmarkTreeNode, setIcon: (icon: string) => void) {
     const url = new URL('https://www.google.com/s2/favicons');
     url.searchParams.set("sz", "256");
-    url.searchParams.set("domain_url", bmData.url!);
+    url.searchParams.set("domain_url", new URL(bmData.url!).origin);
     let resp = await fetch(url)
     if (!resp.ok) {
         return Promise.reject();
@@ -77,4 +77,4 @@ async function toDataURL(url: string) {
     });
 }
 
-export {type IconCacheEntry, getIcon}
+export {type IconCacheEntry, getIcon, toDataURL}

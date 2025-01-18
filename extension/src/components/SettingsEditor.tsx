@@ -89,14 +89,14 @@ function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetState
             <h3>Icon Cache</h3>
             <button className={"default"} onClick={_ => getBrowser().storage.local.clear()}>Clear Icon Cache</button>
 
-            {/*<h3>Editing</h3>*/}
-            {/*<label>*/}
-            {/*    <input type={"checkbox"}*/}
-            {/*           checked={!settings.editMode}*/}
-            {/*           onChange={e => setSettings({...settings, editMode: !e.target.checked})}*/}
-            {/*    />*/}
-            {/*    Prevent editing of bookmarks*/}
-            {/*</label>*/}
+            <h3>Editing</h3>
+            <label>
+                <input type={"checkbox"}
+                       checked={!settings.editMode}
+                       onChange={e => setSettings({...settings, editMode: !e.target.checked})}
+                />
+                Prevent editing of bookmarks
+            </label>
 
             <h3>Open Folders</h3>
             <label>

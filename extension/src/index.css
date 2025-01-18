@@ -59,9 +59,9 @@ body {
   margin: 5px;
   padding: 10px;
   flex-wrap: wrap;
-  /*position: fixed;*/
+  /*position: absolute;*/
   /*bottom: 0;*/
-  animation: slideDown 0.2s ease;
+  animation: slideDown 0.1s ease;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -358,6 +358,21 @@ button:hover:not(.default) {
   margin: 15px;
 }
 
+.selected {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000000c4;
+  display: flex
+;
+  right: 0;
+  bottom: 0;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  /* fill: black; */
+}
 
-
-
+.icon-option {
+  position: relative;
+}

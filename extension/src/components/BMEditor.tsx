@@ -4,25 +4,16 @@ import {ActiveEdit} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import BMIcon from "./BMIcon.tsx";
+import IconPicker from "./IconPicker.tsx";
+
+
 
 
 function BMEditor() {
     const [activeEdit, setActiveEdit] = useContext(ActiveEdit);
 
-    const [iconOptions, setIconOptions] = useState<string[]>([]);
-    const [gIcon, setGIcon] = useState<string | undefined>(undefined);
-
     useEffect(() => {
         if (!activeEdit) return;
-
-        const gURL = new URL('https://www.google.com/s2/favicons');
-        gURL.searchParams.set("sz", "256");
-        gURL.searchParams.set("domain_url", activeEdit.url!);
-        setGIcon(gURL.toString());
-
-        getBrowser().storage.local.get("icon-aval-"+activeEdit.id).then( r => {
-            setIconOptions(r["icon-aval-" + activeEdit.id]);
-        });
     }, [activeEdit]);
 
     let isFolder = activeEdit && activeEdit.children && activeEdit.children.length > 0;
@@ -48,22 +39,8 @@ function BMEditor() {
                 </>)}
 
                 <h3>Icon</h3>
-                <h4>Found on the site</h4>
-                <div className={"icon-selector"}>
-                    { iconOptions &&
-                    // <RadioButtonGroup value={undefined} children={
-                        iconOptions.map(s =>
-                            <BMIcon imgSrc={s}/>
-                        )
-                    // />
-                    }
-                </div>
-                <h4>From Google</h4>
-                <div className={"icon-selector"}>
-                    <BMIcon imgSrc={gIcon}/>
-                </div>
-                <h4>Custom</h4>
-                <button className={"default"}>Upload</button>
+                <IconPicker bmData={activeEdit}/>
+
             </>)}
         </div>
     );

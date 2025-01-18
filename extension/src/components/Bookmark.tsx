@@ -83,7 +83,7 @@ function Bookmark(props: {id: string}) {
     };
 
     return(
-        <div className={"bookmark"}>
+        <div className={"bookmark"} id={bmData.id}>
             <a href={bmData.url} draggable={settings.editMode} onDrag={handleDrag} onDragEnd={handleDragEnd}>
                 <IconPre bmData={bmData}/>
                 <span>{bmData.title}</span>

@@ -37,6 +37,8 @@ function FolderBody (props: {id: string}) {
         updateBookmarks();
     }, [settings]);
 
+    if (children.length <= 0) return;
+
     return (
         <div className={"folderBody"}>
             {children.map(child =>

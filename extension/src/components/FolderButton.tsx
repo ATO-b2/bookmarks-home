@@ -91,7 +91,7 @@ function FolderButton(props: {id: string}) {
 
     return(
         <>
-            <div className={"bookmark"}>
+            <div className={"bookmark"} id={bmData.id}>
                 <a onClick={() => setFolderOpen(!folderOpen)} draggable={settings.editMode} onDrag={handleDrag}
                    onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <div className="icon-box">

@@ -61,10 +61,10 @@ function Body() {
             }})()}
             <style>{"body > .folderBody, a {color: " + settings.foregroundColor + "; }"}</style>
             <div id={"action-area"}>
-                {settings.editMode && <span>Edit mode: Drag bookmarks to change order</span>}
-                <button onClick={_ => setSettings({...settings, editMode: !settings.editMode})}>
-                    {settings.editMode ? <EditIcon/> : <EditOffIcon/>}
-                </button>
+                {/*{settings.editMode && <span>Edit mode: Drag bookmarks to change order</span>}*/}
+                {/*<button onClick={_ => setSettings({...settings, editMode: !settings.editMode})}>*/}
+                {/*    {settings.editMode ? <EditIcon/> : <EditOffIcon/>}*/}
+                {/*</button>*/}
                 <button onClick={_ => setSettingsOpen(!settingsOpen)}>
                     <SettingsIcon/>
                 </button>
