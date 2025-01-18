@@ -79,7 +79,10 @@ function FolderButton(props: {id: string}) {
 
     // actions
     const handleDelete = () => {
-        getBrowser().bookmarks.removeTree(bmData.id);
+        let r = window.confirm("Are you sure you want to delete this folder?\nDeleting a folder will delete all of the items inside of it.").valueOf()
+        if (r) {
+            getBrowser().bookmarks.removeTree(bmData.id);
+        }
         // location.reload();
     };
 
