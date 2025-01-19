@@ -16,7 +16,15 @@ function BMEditor() {
         if (!activeEdit) return;
     }, [activeEdit]);
 
-    let isFolder = activeEdit && activeEdit.children && activeEdit.children.length > 0;
+    function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
+        getBrowser().bookmarks.update(activeEdit!.id, {title: e.target.value})
+    }
+
+    function handleURLChange(e: React.ChangeEvent<HTMLInputElement>) {
+        getBrowser().bookmarks.update(activeEdit!.id, {url: e.target.value})
+    }
+
+    let isFolder = activeEdit && activeEdit.children /*&& activeEdit.children.length > 0;*/
     return (
         <div id="settings-menu" className={activeEdit ? "open" : "closed"}>
             <button id="settings-close" onClick={_ => setActiveEdit(null)}>
@@ -27,15 +35,11 @@ function BMEditor() {
                 <h1>Edit {isFolder ? "Folder" : "Bookmark"}</h1>
 
                 <h3>Name</h3>
-                <input type={"text"} defaultValue={activeEdit?.title} onChange={e => {
-                    getBrowser().bookmarks.update(activeEdit!.id, {title: e.target.value})
-                }}/>
+                <input type={"text"} defaultValue={activeEdit?.title} onBlur={handleTitleChange}/>
 
                 {!isFolder && (<>
                     <h3>URL</h3>
-                    <input type={"url"} defaultValue={activeEdit?.url} onChange={e => {
-                        getBrowser().bookmarks.update(activeEdit!.id, {url: e.target.value})
-                    }}/>
+                    <input type={"url"} defaultValue={activeEdit?.url} onBlur={handleURLChange}/>
                 </>)}
 
                 <h3>Icon</h3>

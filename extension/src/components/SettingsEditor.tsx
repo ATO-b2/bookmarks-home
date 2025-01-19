@@ -61,14 +61,14 @@ function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetState
                             <h3>Background Image URL</h3>
                             <input type={"url"}
                                    value={settings.backgroundImage}
-                                   onChange={e => setSettings({...settings, backgroundImage: e.target.value})}/>
+                                   onBlur={e => setSettings({...settings, backgroundImage: e.target.value})}/>
                         </>)
                     case "color":
                         return (<>
                             <h3>Background Color</h3>
                             <input type={"color"}
                                    value={settings.backgroundColor}
-                                   onChange={e => setSettings({...settings, backgroundColor: e.target.value})}/>
+                                   onBlur={e => setSettings({...settings, backgroundColor: e.target.value})}/>
                         </>)
                 }
             })()}
