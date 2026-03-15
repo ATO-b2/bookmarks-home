@@ -27,6 +27,12 @@ export const ActiveEdit =
         () => {}
     ])
 
+export const OpenFolders =
+    React.createContext<[string[], (arg0: string[]) => void]>([
+        [],
+        () => {}
+    ])
+
 /**
  * A component for the full body of the application
  * Also stores the trees and settings
@@ -36,6 +42,7 @@ function Body() {
     const [settings, setSettings] = useState<ISettings | undefined>(undefined);
     const [activeDrag, setActiveDrag] = useState<BookmarkTreeNode | null>(null);
     const [activeEdit, setActiveEdit] = useState<BookmarkTreeNode | null>(null);
+    const [openFolders, setOpenFolders] = useState<string[]>([]);
 
     useEffect(() => {
         loadSettings().then(r => {
@@ -55,6 +62,7 @@ function Body() {
         <Settings.Provider value={[settings!, setSettings]}>
         <ActiveDrag.Provider value={[activeDrag, setActiveDrag]}>
         <ActiveEdit.Provider value={[activeEdit, setActiveEdit]}>
+        <OpenFolders.Provider value={[openFolders, setOpenFolders]}>
             {(() => {switch (settings.backgroundMode) {
                 case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
@@ -72,6 +80,7 @@ function Body() {
             <SettingsEditor isOpen={[settingsOpen, setSettingsOpen]}/>
             <BMEditor/>
             <FolderBody id={settings.rootFolder || '0'}/>
+        </OpenFolders.Provider>
         </ActiveEdit.Provider>
         </ActiveDrag.Provider>
         </Settings.Provider>
