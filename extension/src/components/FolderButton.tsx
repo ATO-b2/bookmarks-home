@@ -106,8 +106,8 @@ function FolderButton(props: {id: string}) {
         if (!folderOpen && folderButtonRef.current) {
             const rect = folderButtonRef.current.getBoundingClientRect();
             setModalPosition({
-                top: rect.bottom,
-                left: rect.left
+                top: rect.bottom + 10,
+                left: rect.left - 11
             });
         }
         setFolderOpen(!folderOpen);
@@ -117,7 +117,9 @@ function FolderButton(props: {id: string}) {
 
     return(
         <>
-            <div className={"bookmark"} id={bmData.id} ref={folderButtonRef}>
+            <div className={"bookmark"} id={bmData.id} ref={folderButtonRef} style={folderOpen && modalPosition ? {
+                zIndex: modalZIndex + 1
+            } : undefined}>
                 <a onClick={handleFolderClick} draggable={settings.editMode && settings.sort === "from-bookmarks"} onDrag={handleDrag}
                    onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                     <div className="icon-box">
