@@ -59,13 +59,14 @@ body {
 
 /* Folder Modal */
 .folder-modal {
-  position: fixed;
+  position: absolute;
   background-color: rgba(25, 25, 25);
   border: 2px solid rgba(255, 255, 255, 0.2);
+  top: 160px;
   border-radius: 5px;
-  margin-right: 15px;
+  /*margin-right: 15px;*/
   /*padding: 5px;*/
-  overflow: auto;
+  overflow: visible;
   animation: fadeIn 0.2s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
 }
@@ -92,8 +93,9 @@ body {
   /*position: absolute;*/
   /*bottom: 0;*/
   animation: slideDown 0.1s ease;
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
+  height: fit-content;
 }
 
 @keyframes slideDown {
@@ -106,7 +108,7 @@ body > .folderBody {
   position: relative;
   animation: none;
   max-height: 100%;
-  overflow: auto;
+  /*overflow: auto;*/
 }
 
 /* Bookmark */

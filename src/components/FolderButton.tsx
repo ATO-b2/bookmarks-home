@@ -141,8 +141,8 @@ function FolderButton(props: {id: string}) {
                     <div
                         className="folder-modal"
                         style={{
-                            top: modalPosition.top,
-                            left: modalPosition.left,
+                            // top: modalPosition.top,
+                            // left: modalPosition.left,
                             zIndex: modalZIndex + 1
                         }}
                         onClick={(e) => e.stopPropagation()}
