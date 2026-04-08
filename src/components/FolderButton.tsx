@@ -2,7 +2,7 @@ import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
 import FolderIcon from "../assets/folder.svg?react"
 import FolderIconOpen from "../assets/folder_open.svg?react"
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
 import DropTargets from "./DropTargets.tsx";
 import {ActiveDrag, ActiveEdit, OpenFolders, Settings} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
@@ -18,9 +18,10 @@ function FolderButton(props: {id: string}) {
     let [, setActiveEdit] = React.useContext(ActiveEdit)
     let [openFolders, setOpenFolders] = React.useContext(OpenFolders);
 
+    let [childrenSize, setChildrenSize] = React.useState(0);
     const [folderOpen, setFolderOpen] = useState<undefined | boolean>(undefined);
     const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
-    const [modalPosition, setModalPosition] = useState<{top: number, left: number} | null>(null);
+    const [modalPosition, setModalPosition] = useState<{top: number, left: number, width: number} | null>(null);
     const folderButtonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -47,6 +48,21 @@ function FolderButton(props: {id: string}) {
             setBmData(r[0])
         })
     }, []);
+
+    useEffect(() => {
+        getBrowser().bookmarks.getSubTree(props.id).then(r => {
+            let z = r[0].children;
+            if (z) {
+                setChildrenSize(z.length);
+            }
+        })
+    }, [bmData]);
+
+    // TODO
+    // useEffect(() => {
+    //     window.addEventListener('resize', calcFolderSize)
+    //     return () => window.removeEventListener('resize', calcFolderSize)
+    // }, []);
 
     if (!bmData) return;
 
@@ -102,14 +118,30 @@ function FolderButton(props: {id: string}) {
         setActiveEdit(bmData);
     };
 
-    const handleFolderClick = () => {
-        if (!folderOpen && folderButtonRef.current) {
-            const rect = folderButtonRef.current.getBoundingClientRect();
-            setModalPosition({
-                top: rect.bottom + 10,
-                left: rect.left - 11
-            });
+    function calcFolderSize() {
+        if (folderOpen || !folderButtonRef.current) {
+            return;
         }
+
+        let folderButtonElem = folderButtonRef.current;
+        let itemWidth = /*folderButtonElem.offsetWidth*/ 145;
+        let itemCount = childrenSize;
+        let folderWidth = window.innerWidth - /*folderButtonElem.getBoundingClientRect().left*/20;
+        let maxItemsPerRow = Math.floor(folderWidth / itemWidth)
+        let itemsPerRow = Math.min(itemCount, maxItemsPerRow);
+        let distanceAfterButton = folderWidth - folderButtonElem.getBoundingClientRect().left;
+        let maxItemsAfterButton = Math.floor(distanceAfterButton / itemWidth);
+        let itemsAfterButton = Math.min(itemCount, maxItemsAfterButton)
+        let itemsBeforeButton = (itemsPerRow - itemsAfterButton)
+        setModalPosition({
+            width: itemWidth * itemsPerRow + 4,
+            top: folderButtonElem.offsetTop + folderButtonElem.offsetHeight,
+            left: folderButtonElem.offsetLeft - itemsBeforeButton * itemWidth - 11
+        });
+    }
+
+    const handleFolderClick = () => {
+        calcFolderSize()
         setFolderOpen(!folderOpen);
     };
 
@@ -141,8 +173,9 @@ function FolderButton(props: {id: string}) {
                     <div
                         className="folder-modal"
                         style={{
-                            // top: modalPosition.top,
-                            // left: modalPosition.left,
+                            top: modalPosition.top,
+                            left: modalPosition.left,
+                            width: modalPosition.width,
                             zIndex: modalZIndex + 1
                         }}
                         onClick={(e) => e.stopPropagation()}
