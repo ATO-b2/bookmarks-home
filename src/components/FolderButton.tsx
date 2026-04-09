@@ -18,14 +18,15 @@ function FolderButton(props: {id: string}) {
     let [, setActiveEdit] = React.useContext(ActiveEdit)
     let [openFolders, setOpenFolders] = React.useContext(OpenFolders);
 
-    let [childrenSize, setChildrenSize] = React.useState(0);
+    const [childrenCount, setChildrenCount] = React.useState(0);
     const [folderOpen, setFolderOpen] = useState<undefined | boolean>(undefined);
     const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
     const [modalPosition, setModalPosition] = useState<{top: number, left: number, width: number} | null>(null);
+    const [viewportDims, setViewportDims] = useState<undefined | {x: number, y: number}>();
+
     const folderButtonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        console.log(props.id+" state="+folderOpen)
         getBrowser().storage.local.set({['keepopen-'+props.id]: folderOpen})
 
         // Update global open folders list
@@ -47,22 +48,25 @@ function FolderButton(props: {id: string}) {
         getBrowser().bookmarks.get(props.id).then(r => {
             setBmData(r[0])
         })
+        let handleResize = () => setViewportDims({x: window.innerWidth, y: window.innerHeight});
+        handleResize();
+        window.addEventListener('resize', handleResize);
     }, []);
 
     useEffect(() => {
         getBrowser().bookmarks.getSubTree(props.id).then(r => {
             let z = r[0].children;
             if (z) {
-                setChildrenSize(z.length);
+                setChildrenCount(z.length);
             }
         })
     }, [bmData]);
 
-    // TODO
-    // useEffect(() => {
-    //     window.addEventListener('resize', calcFolderSize)
-    //     return () => window.removeEventListener('resize', calcFolderSize)
-    // }, []);
+    useLayoutEffect(() => {
+        if (folderOpen) {
+            calcFolderSize();
+        }
+    }, [viewportDims]);
 
     if (!bmData) return;
 
@@ -119,17 +123,17 @@ function FolderButton(props: {id: string}) {
     };
 
     function calcFolderSize() {
-        if (folderOpen || !folderButtonRef.current) {
+        if (!folderButtonRef.current || !viewportDims) {
             return;
         }
 
         let folderButtonElem = folderButtonRef.current;
         let itemWidth = /*folderButtonElem.offsetWidth*/ 145;
-        let itemCount = childrenSize;
-        let folderWidth = window.innerWidth - /*folderButtonElem.getBoundingClientRect().left*/20;
-        let maxItemsPerRow = Math.floor(folderWidth / itemWidth)
+        let itemCount = childrenCount;
+        let maxFolderWidth = viewportDims.x - /*folderButtonElem.getBoundingClientRect().left*/20;
+        let maxItemsPerRow = Math.floor(maxFolderWidth / itemWidth)
         let itemsPerRow = Math.min(itemCount, maxItemsPerRow);
-        let distanceAfterButton = folderWidth - folderButtonElem.getBoundingClientRect().left;
+        let distanceAfterButton = (maxFolderWidth - folderButtonElem.getBoundingClientRect().left) + 20;
         let maxItemsAfterButton = Math.floor(distanceAfterButton / itemWidth);
         let itemsAfterButton = Math.min(itemCount, maxItemsAfterButton)
         let itemsBeforeButton = (itemsPerRow - itemsAfterButton)
@@ -138,6 +142,21 @@ function FolderButton(props: {id: string}) {
             top: folderButtonElem.offsetTop + folderButtonElem.offsetHeight,
             left: folderButtonElem.offsetLeft - itemsBeforeButton * itemWidth - 11
         });
+        // console.log("info", {
+        //     folderButtonElem,
+        //     itemWidth,
+        //     itemCount,
+        //     maxFolderWidth,
+        //     maxItemsPerRow,
+        //     itemsPerRow,
+        //     distanceAfterButton,
+        //     maxItemsAfterButton,
+        //     itemsAfterButton,
+        //     itemsBeforeButton,
+        //     rWidth: modalPosition?.width,
+        //     rLeft: modalPosition?.left,
+        //     rTop: modalPosition?.top
+        // })
     }
 
     const handleFolderClick = () => {
