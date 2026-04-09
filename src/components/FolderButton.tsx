@@ -164,6 +164,10 @@ function FolderButton(props: {id: string}) {
         setFolderOpen(!folderOpen);
     };
 
+    if (folderOpen && !modalPosition) {
+        calcFolderSize()
+    }
+
     const modalZIndex = 100 + openFolders.indexOf(props.id);
 
     return(
