@@ -11,27 +11,27 @@ interface OnMovedInfo {
 }
 
 function registerBookmarkChildrenChangedListener(id: string, action: () => void) {
-    let a = (_: string, moveInfo: _OnRemovedRemoveInfo) => {
+    let remove = (_: string, moveInfo: _OnRemovedRemoveInfo) => {
         if (moveInfo.parentId !== id) return;
         action();
     }
-    let b = (_: string, moveInfo: OnMovedInfo) => {
+    let move = (_: string, moveInfo: OnMovedInfo) => {
         if (moveInfo.parentId !== id && moveInfo.oldParentId !== id ) return;
         action();
     }
-    let c = (_: string, moveInfo: BookmarkTreeNode) => {
+    let create = (_: string, moveInfo: BookmarkTreeNode) => {
         if (moveInfo.parentId !== id) return;
         action();
     }
 
-    getBrowser().bookmarks.onRemoved.addListener(a)
-    getBrowser().bookmarks.onMoved.addListener(b)
-    getBrowser().bookmarks.onCreated.addListener(c)
+    getBrowser().bookmarks.onRemoved.addListener(remove)
+    getBrowser().bookmarks.onMoved.addListener(move)
+    getBrowser().bookmarks.onCreated.addListener(create)
 
     const deregister = () => {
-        getBrowser().bookmarks.onRemoved.removeListener(a)
-        getBrowser().bookmarks.onMoved.removeListener(b)
-        getBrowser().bookmarks.onCreated.removeListener(c)
+        getBrowser().bookmarks.onRemoved.removeListener(remove)
+        getBrowser().bookmarks.onMoved.removeListener(move)
+        getBrowser().bookmarks.onCreated.removeListener(create)
     };
 
     return { deregister }

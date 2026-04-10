@@ -26,7 +26,6 @@ function FolderButton(props: {id: string}) {
     useEffect(() => {
         getBrowser().storage.local.set({['keepopen-'+props.id]: folderOpen})
 
-        // Update global open folders list
         if (folderOpen) {
             setOpenFolders([...openFolders, props.id]);
         } else {
