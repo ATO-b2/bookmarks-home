@@ -1,12 +1,12 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import FolderBody from "./FolderBody.tsx";
 import FolderIcon from "../assets/folder.svg?react"
 import FolderIconOpen from "../assets/folder_open.svg?react"
-import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import DropTargets from "./DropTargets.tsx";
 import {ActiveDrag, ActiveEdit, OpenFolders, Settings} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
 import ContextMenu from "./ContextMenu.tsx";
+import FolderModal from "./FolderModal.tsx";
 
 /**
  * A component for the button used to open a bookmark folder.
@@ -18,11 +18,8 @@ function FolderButton(props: {id: string}) {
     let [, setActiveEdit] = React.useContext(ActiveEdit)
     let [openFolders, setOpenFolders] = React.useContext(OpenFolders);
 
-    const [childrenCount, setChildrenCount] = React.useState(0);
     const [folderOpen, setFolderOpen] = useState<undefined | boolean>(undefined);
     const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
-    const [modalPosition, setModalPosition] = useState<{top: number, left: number, width: number} | null>(null);
-    const [viewportDims, setViewportDims] = useState<undefined | {x: number, y: number}>();
 
     const folderButtonRef = useRef<HTMLDivElement>(null);
 
@@ -48,25 +45,7 @@ function FolderButton(props: {id: string}) {
         getBrowser().bookmarks.get(props.id).then(r => {
             setBmData(r[0])
         })
-        let handleResize = () => setViewportDims({x: window.innerWidth, y: window.innerHeight});
-        handleResize();
-        window.addEventListener('resize', handleResize);
     }, []);
-
-    useEffect(() => {
-        getBrowser().bookmarks.getSubTree(props.id).then(r => {
-            let z = r[0].children;
-            if (z) {
-                setChildrenCount(z.length);
-            }
-        })
-    }, [bmData]);
-
-    useLayoutEffect(() => {
-        if (folderOpen) {
-            calcFolderSize();
-        }
-    }, [viewportDims]);
 
     if (!bmData) return;
 
@@ -122,90 +101,48 @@ function FolderButton(props: {id: string}) {
         setActiveEdit(bmData);
     };
 
-    function calcFolderSize() {
-        if (!folderButtonRef.current || !viewportDims) {
-            return;
-        }
-
-        let folderButtonElem = folderButtonRef.current;
-        let itemWidth = /*folderButtonElem.offsetWidth*/ 145;
-        let itemCount = childrenCount;
-        let maxFolderWidth = viewportDims.x - /*folderButtonElem.getBoundingClientRect().left*/20;
-        let maxItemsPerRow = Math.floor(maxFolderWidth / itemWidth)
-        let itemsPerRow = Math.min(itemCount, maxItemsPerRow);
-        let distanceAfterButton = (maxFolderWidth - folderButtonElem.getBoundingClientRect().left) + 20;
-        let maxItemsAfterButton = Math.floor(distanceAfterButton / itemWidth);
-        let itemsAfterButton = Math.min(itemCount, maxItemsAfterButton)
-        let itemsBeforeButton = (itemsPerRow - itemsAfterButton)
-        setModalPosition({
-            width: itemWidth * itemsPerRow + 4,
-            top: folderButtonElem.offsetTop + folderButtonElem.offsetHeight,
-            left: folderButtonElem.offsetLeft - itemsBeforeButton * itemWidth - 11
-        });
-        // console.log("info", {
-        //     folderButtonElem,
-        //     itemWidth,
-        //     itemCount,
-        //     maxFolderWidth,
-        //     maxItemsPerRow,
-        //     itemsPerRow,
-        //     distanceAfterButton,
-        //     maxItemsAfterButton,
-        //     itemsAfterButton,
-        //     itemsBeforeButton,
-        //     rWidth: modalPosition?.width,
-        //     rLeft: modalPosition?.left,
-        //     rTop: modalPosition?.top
-        // })
-    }
-
     const handleFolderClick = () => {
-        calcFolderSize()
         setFolderOpen(!folderOpen);
     };
-
-    if (folderOpen && !modalPosition) {
-        calcFolderSize()
-    }
 
     const modalZIndex = 100 + openFolders.indexOf(props.id);
 
     return(
         <>
-            <div className={"bookmark"} id={bmData.id} ref={folderButtonRef} style={folderOpen && modalPosition ? {
+            <div className={"bookmark"} id={bmData.id} ref={folderButtonRef} style={folderOpen ? {
                 zIndex: modalZIndex + 1
             } : undefined}>
-                <a onClick={handleFolderClick} draggable={settings.editMode && settings.sort === "from-bookmarks"} onDrag={handleDrag}
-                   onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <a
+                    onClick={handleFolderClick}
+                    draggable={settings.editMode && settings.sort === "from-bookmarks"}
+                    onDrag={handleDrag}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
                     <div className="icon-box">
                         {folderOpen ? <FolderIconOpen/> : <FolderIcon/>}
                     </div>
                     <span>{bmData.title}</span>
                 </a>
-                {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
+                {settings.editMode &&
+                    <ContextMenu
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />}
                 {activeDrag && activeDrag !== bmData &&
-                    <DropTargets onDropLeft={handleDropLeft} onDropRight={handleDropRight} onDropCenter={handleDropCenter}/>}
+                    <DropTargets
+                        onDropLeft={handleDropLeft}
+                        onDropRight={handleDropRight}
+                        onDropCenter={handleDropCenter}
+                    />}
             </div>
-            {folderOpen && modalPosition && (
-                <>
-                    <div
-                        className="folder-modal-overlay"
-                        style={{zIndex: modalZIndex}}
-                        onClick={() => setFolderOpen(false)}
-                    />
-                    <div
-                        className="folder-modal"
-                        style={{
-                            top: modalPosition.top,
-                            left: modalPosition.left,
-                            width: modalPosition.width,
-                            zIndex: modalZIndex + 1
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <FolderBody id={bmData.id}/>
-                    </div>
-                </>
+            {folderOpen && (
+                <FolderModal
+                    id={bmData.id}
+                    folderRef={folderButtonRef}
+                    zIndex={modalZIndex}
+                    onClose={() => setFolderOpen(false)}
+                />
             )}
         </>
     );
