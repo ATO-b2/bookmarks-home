@@ -4,6 +4,7 @@ import {Settings} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
 import Bookmark from "./Bookmark.tsx";
 import FolderButton from "./FolderButton.tsx";
+import {registerBookmarkChildrenChangedListener} from "../util.ts";
 
 /**
  * A component that displays the contents of a bookmark folder
@@ -26,19 +27,10 @@ function FolderBody (props: {id: string}) {
     }
 
     useEffect(() => {
+        let changeListener = registerBookmarkChildrenChangedListener(props.id, updateBookmarks)
         updateBookmarks();
-        getBrowser().bookmarks.onRemoved.addListener((id: string, moveInfo) => {
-            if (moveInfo.parentId !== props.id) return;
-            updateBookmarks();
-        })
-        getBrowser().bookmarks.onMoved.addListener((id: string, moveInfo) => {
-            if (moveInfo.parentId !== props.id && moveInfo.oldParentId !== props.id ) return;
-            updateBookmarks();
-        })
-        getBrowser().bookmarks.onCreated.addListener((id: string, moveInfo) => {
-            if (moveInfo.parentId !== props.id) return;
-            updateBookmarks();
-        })
+
+        return () => changeListener.deregister();
     }, []);
 
     useEffect(() => {
