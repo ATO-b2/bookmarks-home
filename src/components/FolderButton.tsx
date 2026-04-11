@@ -3,7 +3,7 @@ import FolderIcon from "../assets/folder.svg?react"
 import FolderIconOpen from "../assets/folder_open.svg?react"
 import React, {useEffect, useRef, useState} from "react";
 import DropTargets from "./DropTargets.tsx";
-import {ActiveDrag, ActiveEdit, OpenFolders, Settings} from "./Body.tsx";
+import {ActiveDrag, OpenFolders, Settings} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import FolderModal from "./FolderModal.tsx";
@@ -14,8 +14,7 @@ import FolderModal from "./FolderModal.tsx";
  */
 function FolderButton(props: {id: string}) {
     let [settings, ] = React.useContext(Settings);
-    let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
-    let [, setActiveEdit] = React.useContext(ActiveEdit)
+    let [, setActiveDrag] = React.useContext(ActiveDrag);
     let [openFolders, setOpenFolders] = React.useContext(OpenFolders);
 
     const [folderOpen, setFolderOpen] = useState<undefined | boolean>(undefined);
@@ -46,65 +45,9 @@ function FolderButton(props: {id: string}) {
         })
     }, []);
 
-    if (!bmData) return;
-
-    // Dragging
-    const handleDragStart = (e: React.DragEvent<HTMLAnchorElement>) => {
-        e.dataTransfer.setData("sowgro", "placeholder")
-    };
-
-    const handleDrag = () => {
-        setActiveDrag(bmData);
-    };
-
-    const handleDragEnd = () => {
-        setActiveDrag(null);
-    };
-
-    // Dropping
-    const handleDropLeft = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: bmData.parentId,
-            index: bmData.index
-        })
-        // location.reload()
-    };
-
-    const handleDropRight = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: bmData.parentId,
-            index: (bmData.index! + 1)
-        })
-        // location.reload();
-    };
-
-    const handleDropCenter = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: bmData.id
-        });
-        // location.reload()
-    };
-
-    // actions
-    const handleDelete = () => {
-        let r = window.confirm("Are you sure you want to delete this folder?\nDeleting a folder will delete all of the items inside of it.").valueOf()
-        if (r) {
-            getBrowser().bookmarks.removeTree(bmData.id);
-        }
-        // location.reload();
-    };
-
-    const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        setActiveEdit(null);
-        setActiveEdit(bmData);
-    };
-
-    const handleFolderClick = () => {
-        setFolderOpen(!folderOpen);
-    };
-
     const modalZIndex = 100 + openFolders.indexOf(props.id);
+
+    if (!bmData) return;
 
     return(
         <>
@@ -112,28 +55,18 @@ function FolderButton(props: {id: string}) {
                 zIndex: modalZIndex + 1
             } : undefined}>
                 <a
-                    onClick={handleFolderClick}
-                    draggable={settings.enableDragging && settings.sort === "from-bookmarks"}
-                    onDrag={handleDrag}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
+                    onClick={() => setFolderOpen(!folderOpen)}
+                    draggable={settings.enableDragging}
+                    onDragStart={() => setActiveDrag(bmData)}
+                    onDragEnd={() => setActiveDrag(null)}
                 >
                     <div className="icon-box">
                         {folderOpen ? <FolderIconOpen/> : <FolderIcon/>}
                     </div>
                     <span>{bmData.title}</span>
                 </a>
-                {settings.editMode &&
-                    <ContextMenu
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />}
-                {settings.editMode && activeDrag && activeDrag !== bmData &&
-                    <DropTargets
-                        onDropLeft={handleDropLeft}
-                        onDropRight={handleDropRight}
-                        onDropCenter={handleDropCenter}
-                    />}
+                <ContextMenu bmData={bmData} isFolder={true}/>
+                <DropTargets bmData={bmData} isFolder={true}/>
             </div>
             {folderOpen && (
                 <FolderModal
