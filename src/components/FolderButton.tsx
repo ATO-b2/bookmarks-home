@@ -113,7 +113,7 @@ function FolderButton(props: {id: string}) {
             } : undefined}>
                 <a
                     onClick={handleFolderClick}
-                    draggable={settings.editMode && settings.sort === "from-bookmarks"}
+                    draggable={settings.enableDragging && settings.sort === "from-bookmarks"}
                     onDrag={handleDrag}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
@@ -128,7 +128,7 @@ function FolderButton(props: {id: string}) {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                     />}
-                {activeDrag && activeDrag !== bmData &&
+                {settings.editMode && activeDrag && activeDrag !== bmData &&
                     <DropTargets
                         onDropLeft={handleDropLeft}
                         onDropRight={handleDropRight}

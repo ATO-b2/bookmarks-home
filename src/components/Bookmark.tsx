@@ -84,12 +84,12 @@ function Bookmark(props: {id: string}) {
 
     return(
         <div className={"bookmark"} id={bmData.id}>
-            <a href={bmData.url} draggable={settings.editMode && settings.sort === "from-bookmarks"} onDrag={handleDrag} onDragEnd={handleDragEnd}>
+            <a href={bmData.url} draggable={settings.enableDragging && settings.sort === "from-bookmarks"} onDrag={handleDrag} onDragEnd={handleDragEnd}>
                 <IconPre bmData={bmData}/>
                 <span>{bmData.title}</span>
             </a>
             {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
-            {activeDrag && activeDrag !== bmData &&
+            {settings.editMode && activeDrag && activeDrag !== bmData &&
                 <DropTargets onDropLeft={handleDropLeft} onDropRight={handleDropRight} onDropCenter={handleDropCenter}/>}
         </div>
     );

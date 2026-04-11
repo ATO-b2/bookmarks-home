@@ -89,13 +89,20 @@ function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetState
             <h3>Icon Cache</h3>
             <button className={"default"} onClick={_ => getBrowser().storage.local.clear()}>Clear Icon Cache</button>
 
-            <h3>Editing</h3>
+            <h3>Items</h3>
+            <label>
+                <input type={"checkbox"}
+                       checked={settings.enableDragging}
+                       onChange={e => setSettings({...settings, enableDragging: e.target.checked})}
+                />
+                Enable dragging links
+            </label>
             <label>
                 <input type={"checkbox"}
                        checked={!settings.editMode}
                        onChange={e => setSettings({...settings, editMode: !e.target.checked})}
                 />
-                Prevent editing of bookmarks
+                Lock editing
             </label>
 
             <h3>Open Folders</h3>
