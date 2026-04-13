@@ -9,8 +9,7 @@ import {registerBookmarkChildrenChangedListener} from "../util.ts";
 /**
  * A component that displays the contents of a bookmark folder
  */
-function FolderBody (props: {id: string}) {
-
+function FolderBody(props: {id: string}) {
     const [settings, ] = useContext(Settings)
 
     const [children, setChildren] = useState<BookmarkTreeNode[]>([])

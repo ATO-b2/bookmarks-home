@@ -1,6 +1,5 @@
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import ColorThief from "colorthief";
-import {getBrowser} from "../main.tsx";
 
 function BMIcon(props: {imgSrc?: string, bmUrl?:string}) {
 

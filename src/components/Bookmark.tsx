@@ -31,7 +31,6 @@ function Bookmark(props: {id: string}) {
 
     if (!bmData) return;
 
-    // Dragging
     return(
         <div className={"bookmark"} id={bmData.id}>
             <a

@@ -2,12 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import CloseIcon from "../assets/close.svg?react"
 import {ActiveEdit} from "./Body.tsx";
 import {getBrowser} from "../main.tsx";
-import RadioButtonGroup from "./RadioButtonGroup.tsx";
-import BMIcon from "./BMIcon.tsx";
 import IconPicker from "./IconPicker.tsx";
-
-
-
 
 function BMEditor() {
     const [activeEdit, setActiveEdit] = useContext(ActiveEdit);
