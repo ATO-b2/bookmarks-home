@@ -1,7 +1,7 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {useContext, useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {ActiveDrag, ActiveEdit, Settings} from "./Body.tsx";
+import {ActiveDrag, ActiveEdit, Settings} from "./Context.tsx";
 import DropTargets from "./DropTargets.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import BMIcon from "./BMIcon.tsx";

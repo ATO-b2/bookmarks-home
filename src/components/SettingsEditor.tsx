@@ -2,7 +2,7 @@ import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useContext, useEffect, useState} from "react";
 import CloseIcon from "../assets/close.svg?react"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import {Settings} from "./Body.tsx";
+import {Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 
 /**

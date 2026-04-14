@@ -1,37 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
-import EditIcon from "../assets/edit.svg?react";
-import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import FolderBody from "./FolderBody.tsx";
-import {defaultSettings, ISettings, loadSettings, writeSettings} from "../Settings.ts";
-import {getBrowser} from "../main.tsx";
+import {loadSettings, writeSettings} from "../Settings.ts";
 import BMEditor from "./BMEditor.tsx";
-import EditOffIcon from "../assets/edit_off.svg?react";
-
-export const Settings =
-    React.createContext<[ISettings, (arg0: ISettings) => void]>([
-        defaultSettings,
-        () => {}
-    ]);
-
-export const ActiveDrag =
-    React.createContext<[BookmarkTreeNode | null, (arg0: BookmarkTreeNode | null) => void]>([
-        null,
-        () => {}
-    ])
-
-export const ActiveEdit =
-    React.createContext<[BookmarkTreeNode | null, (arg0: BookmarkTreeNode | null) => void]>([
-        null,
-        () => {}
-    ])
-
-export const OpenFolders =
-    React.createContext<[string[], (arg0: string[]) => void]>([
-        [],
-        () => {}
-    ])
+import {Settings} from "./Context.tsx";
 
 /**
  * A component for the full body of the application
@@ -39,10 +12,7 @@ export const OpenFolders =
  */
 function Body() {
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const [settings, setSettings] = useState<ISettings | undefined>(undefined);
-    const [activeDrag, setActiveDrag] = useState<BookmarkTreeNode | null>(null);
-    const [activeEdit, setActiveEdit] = useState<BookmarkTreeNode | null>(null);
-    const [openFolders, setOpenFolders] = useState<string[]>([]);
+    const [settings, setSettings] = useContext(Settings);
 
     useEffect(() => {
         loadSettings().then(r => {
@@ -59,10 +29,7 @@ function Body() {
     if (!settings) return;
 
     return (
-        <Settings.Provider value={[settings!, setSettings]}>
-        <ActiveDrag.Provider value={[activeDrag, setActiveDrag]}>
-        <ActiveEdit.Provider value={[activeEdit, setActiveEdit]}>
-        <OpenFolders.Provider value={[openFolders, setOpenFolders]}>
+        <>
             {(() => {switch (settings.backgroundMode) {
                 case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
                 case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
@@ -80,10 +47,7 @@ function Body() {
             <SettingsEditor isOpen={[settingsOpen, setSettingsOpen]}/>
             <BMEditor/>
             <FolderBody id={settings.rootFolder || '0'}/>
-        </OpenFolders.Provider>
-        </ActiveEdit.Provider>
-        </ActiveDrag.Provider>
-        </Settings.Provider>
+        </>
     )
 }
 

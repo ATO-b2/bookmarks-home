@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import CloseIcon from "../assets/close.svg?react"
-import {ActiveEdit} from "./Body.tsx";
+import {ActiveEdit} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 import IconPicker from "./IconPicker.tsx";
 

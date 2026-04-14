@@ -1,6 +1,6 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {useContext, useEffect, useState} from "react";
-import {Settings} from "./Body.tsx";
+import {Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 import Bookmark from "./Bookmark.tsx";
 import FolderButton from "./FolderButton.tsx";
