@@ -1,7 +1,7 @@
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import ColorThief from "colorthief";
 
-function BMIcon(props: {imgSrc?: string, bmUrl?:string}) {
+function BookmarkIcon(props: {imgSrc?: string, bmUrl?:string}) {
 
     let [iconMode, setIconMode] = React.useState<"large" | "small" | "letter">("large");
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
@@ -62,4 +62,4 @@ function hashStringToColor(str: string): [number, number, number] {
     return [r, g, b];
 }
 
-export default BMIcon;
+export default BookmarkIcon;

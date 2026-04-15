@@ -4,7 +4,7 @@ import {getBrowser} from "../main.tsx";
 import {ActiveDrag, ActiveEdit, Settings} from "./Context.tsx";
 import DropTargets from "./DropTargets.tsx";
 import ContextMenu from "./ContextMenu.tsx";
-import BMIcon from "./BMIcon.tsx";
+import BookmarkIcon from "./BookmarkIcon.tsx";
 import {getIcon} from "../Icons.ts";
 
 /**
@@ -58,5 +58,5 @@ function IconPre(props: {bmData: BookmarkTreeNode}) {
     }, []);
 
     // if (!data) return;
-    return <BMIcon bmUrl={props.bmData.url} imgSrc={data}/>
+    return <BookmarkIcon bmUrl={props.bmData.url} imgSrc={data}/>
 }

@@ -4,7 +4,7 @@ import {ActiveEdit} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 import IconPicker from "./IconPicker.tsx";
 
-function BMEditor() {
+function BookmarkEditor() {
     const [activeEdit, setActiveEdit] = useContext(ActiveEdit);
 
     useEffect(() => {
@@ -45,4 +45,4 @@ function BMEditor() {
     );
 }
 
-export default BMEditor;
+export default BookmarkEditor;

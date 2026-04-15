@@ -1,7 +1,7 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import BMIcon from "./BMIcon.tsx";
+import BookmarkIcon from "./BookmarkIcon.tsx";
 import Check from "../assets/check.svg?react"
 import {IconCacheEntry, toDataURL} from "../Icons.ts";
 
@@ -78,7 +78,7 @@ function IconOption(props: {ico: IIconOption, isSelected: boolean, isSelectedAut
 
     return (
         <div className={"icon-option"} onClick={handleClick}>
-            <BMIcon imgSrc={props.ico.url}/>
+            <BookmarkIcon imgSrc={props.ico.url}/>
             {props.isSelected && <div className={"selected"}>
                 <Check/>
             </div>}

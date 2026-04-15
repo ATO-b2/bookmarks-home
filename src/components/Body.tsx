@@ -3,7 +3,7 @@ import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
 import FolderBody from "./FolderBody.tsx";
 import {loadSettings, writeSettings} from "../Settings.ts";
-import BMEditor from "./BMEditor.tsx";
+import BookmarkEditor from "./BookmarkEditor.tsx";
 import {Settings} from "./Context.tsx";
 
 /**
@@ -45,7 +45,7 @@ function Body() {
                 </button>
             </div>
             <SettingsEditor isOpen={[settingsOpen, setSettingsOpen]}/>
-            <BMEditor/>
+            <BookmarkEditor/>
             <FolderBody id={settings.rootFolder || '0'}/>
         </>
     )
