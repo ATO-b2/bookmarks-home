@@ -1,58 +1,73 @@
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import ColorThief from "colorthief";
+import {getIconInfo, IconInfo} from "../Icons.ts";
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
-function BookmarkIcon(props: {imgSrc?: string, bmUrl?:string}) {
+// from bookmark data
+function BookmarkIcon(props: {bmData: BookmarkTreeNode}) {
+    const [iconInfo, setIconInfo] = useState<IconInfo | undefined>(undefined)
 
-    let [iconMode, setIconMode] = React.useState<"large" | "small" | "letter">("large");
+    useEffect(() => {
+        getIconInfo(props.bmData).then(r => {
+            r && setIconInfo(r);
+        })
+    }, []);
+
+    return iconInfo
+        ? (<AutoBookmarkIcon imgSrc={iconInfo.src} size={iconInfo.size}/>)
+        : (<LetterBookmarkIcon text={new URL(props.bmData.url!).hostname}/>)
+}
+
+// auto small or large
+function AutoBookmarkIcon(props: {imgSrc: string, size: number}) {
+    return props.size! < 75
+        ? (<SmallBookmarkIcon imgSrc={props.imgSrc}/>)
+        : (<LargeBookmarkIcon imgSrc={props.imgSrc}/>);
+}
+
+function LargeBookmarkIcon(props: {imgSrc: string}) {
+    return (
+        <div className={"icon-box " + 'large'}>
+            <img alt="Bookmark icon" src={props.imgSrc}/>
+        </div>
+    )
+}
+
+function SmallBookmarkIcon(props: {imgSrc: string}) {
     let [bgColor, setBgColor] = React.useState<[number, number, number] | null>(null)
 
     function handleImageLoad(e: SyntheticEvent<HTMLImageElement, Event>) {
-        if (e.currentTarget.naturalWidth < 75 && !props.imgSrc!.startsWith("data:image/svg+xml")) {
+        if (!bgColor) {
             setBgColor(new ColorThief().getColor(e.currentTarget));
-            setIconMode("small");
         }
-    }
-
-    function handleImageError() {
-        if (props.bmUrl) {
-            let url = new URL(props.bmUrl);
-            setBgColor(hashStringToColor(url.hostname))
-        }
-        setIconMode("letter");
-    }
-
-    if (!props.imgSrc) {
-        if (props.bmUrl) {
-            let url = new URL(props.bmUrl);
-            bgColor = hashStringToColor(url.hostname)
-        }
-        iconMode = "letter"
     }
 
     return (
-        <div className={"icon-box " + (iconMode)}
-             style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}>
-            {(() => { switch (iconMode) {
-                case "letter": {
-                    return (<span className={"letter"}>{ props.bmUrl
-                        ? new URL(props.bmUrl).hostname.charAt(0)
-                        : '?'
-                    }</span>)
-                }
-                case "small": {
-                    return (<img alt="Bookmark icon" src={props.imgSrc}/>)
-                }
-                case "large": {
-                    return (<img alt="Bookmark icon" src={props.imgSrc} onLoad={handleImageLoad} onError={handleImageError}/>)
-                }
-            }})()}
-    </div>
+        <div
+            className={"icon-box " + 'small'}
+            style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}
+        >
+            <img alt="Bookmark icon" src={props.imgSrc} onLoad={handleImageLoad}/>
+        </div>
+    )
+}
+
+function LetterBookmarkIcon(props: {text?: string}) {
+    let bgColor = hashStringToColor(props.text || "?")
+
+    return (
+        <div
+            className={"icon-box " + 'letter'}
+            style={bgColor ? {"--icon-bg": `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.2)`} as React.CSSProperties : undefined}
+        >
+            <span className={"letter"}>{(props.text || '?')[0]}</span>
+        </div>
     )
 }
 
 function hashStringToColor(str: string): [number, number, number] {
     let hash = 5381;
-    for (var i = 0; i < str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
         hash = ((hash << 5) + hash) + str.charCodeAt(i); /* hash * 33 + c */
     }
 
@@ -62,4 +77,4 @@ function hashStringToColor(str: string): [number, number, number] {
     return [r, g, b];
 }
 
-export default BookmarkIcon;
+export { BookmarkIcon, AutoBookmarkIcon, LetterBookmarkIcon };
