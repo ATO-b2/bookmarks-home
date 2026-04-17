@@ -3,66 +3,93 @@ import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
 interface IconCacheEntry {
     url?: string,
-    data: string,
+    data: IconInfo,
     setByUser: boolean,
     source: "google" | "site" | "custom"
 }
 
-async function getIcon(bmData: BookmarkTreeNode, setIcon: (icon: string) => void) {
-    let cache: IconCacheEntry = (await getBrowser().storage.local.get("icon-cache-" + bmData.id))["icon-cache-" + bmData.id];
+export interface IconInfo {
+    src: string,
+    size: number
+}
+
+interface IconAvalEntry {
+    url: string,
+    size: number
+}
+
+// let iconAvalEntryToInfo = async (iae: IconAvalEntry): Promise<IconInfo> => {
+//     return {
+//         size: iae.size,
+//         src: await toDataURL(iae.url)
+//     }
+// }
+
+let dao = {
+    iconCache: {
+        get: async (id: string): Promise<IconCacheEntry | undefined> => {
+            let data = Object.values(await getBrowser().storage.local.get(`icon-cache-${id}`)).at(0);
+            return data ? JSON.parse(data) : undefined;
+        },
+        put: async (id: string, entry: IconCacheEntry) => {
+            let data = JSON.stringify(entry);
+            return await getBrowser().storage.local.set({[`icon-cache-${id}`]: data});
+        }
+    },
+    iconAval: {
+        get: async (id: string): Promise<IconAvalEntry[] | undefined> => {
+            let data = Object.values(await getBrowser().storage.local.get("icon-aval-" + id)).at(0)
+            return data ? JSON.parse(data) : undefined
+        }
+    }
+}
+
+async function getIconInfo(bmData: BookmarkTreeNode): Promise<IconInfo | undefined> {
+    let cache = await dao.iconCache.get(bmData.id);
 
     if (cache) {
-        // if there is an icon in the cache, set that
-        setIcon(cache.data);
-        if (cache.setByUser) {
-            // if the user was the one who set the icon, then quit
-            return;
-        }
-
-        if (cache.source === "google") {
-            await iconFromSite(bmData, setIcon);
-        }
+        return cache.data;
     } else {
-        iconFromSite(bmData, setIcon).catch(() => {
-            iconFromGoogle(bmData, setIcon);
-        })
+        return await bestIconFromSite(bmData);
     }
 }
 
-async function iconFromGoogle(bmData: BookmarkTreeNode, setIcon: (icon: string) => void) {
-    const url = new URL('https://www.google.com/s2/favicons');
-    url.searchParams.set("sz", "256");
-    url.searchParams.set("domain_url", new URL(bmData.url!).origin);
-    let resp = await fetch(url)
-    if (!resp.ok) {
-        return Promise.reject();
-    }
-    let r =  url.toString()
-    setIcon(r);
-    let newCache: IconCacheEntry = {
-        url: r,
-        data: await toDataURL(r),
-        setByUser: false,
-        source: "google"
-    }
-    await getBrowser().storage.local.set({["icon-cache-" + bmData.id]: newCache})
-}
+// async function iconFromGoogle(bmData: BookmarkTreeNode) {
+//     const url = new URL('https://www.google.com/s2/favicons');
+//     url.searchParams.set("sz", "256");
+//     url.searchParams.set("domain_url", new URL(bmData.url!).origin);
+//     let resp = await fetch(url)
+//     if (!resp.ok) {
+//         return undefined;
+//     }
+//     let r = url.toString()
+//     let newCache: IconCacheEntry = {
+//         url: r,
+//         data: await toDataURL(r),
+//         setByUser: false,
+//         source: "google"
+//     }
+//
+// }
 
-async function iconFromSite(bmData: BookmarkTreeNode, setIcon: (icon: string) => void) {
-    let icons_aval: string[] = (await getBrowser().storage.local.get("icon-aval-" + bmData.id))["icon-aval-" + bmData.id];
-    if (!(icons_aval && icons_aval.length > 0)) {
-        return Promise.reject()
+async function bestIconFromSite(bmData: BookmarkTreeNode) {
+    let icons_aval = (await dao.iconAval.get(bmData.id));
+    if (!icons_aval || !icons_aval.length) {
+        return undefined
     }
-    let r = icons_aval[0];
-    // set the icon and update the cache
-    setIcon(r);
-    let newCache: IconCacheEntry = {
-        url: r,
-        data: await toDataURL(r),
+
+    let k = icons_aval[0];
+    let r = {
+        src: await toDataURL(k.url),
+        size: k.size
+    }
+    dao.iconCache.put(bmData.id, {
+        url: k.url,
+        data: r,
         setByUser: false,
         source: "site"
-    }
-    await getBrowser().storage.local.set({["icon-cache-" +bmData.id]: newCache})
+    })
+    return r;
 }
 
 async function toDataURL(url: string) {
@@ -70,11 +97,10 @@ async function toDataURL(url: string) {
     let blob: Blob = await response.blob();
     return await new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
-        // @ts-ignore
-        reader.onloadend = () => resolve(reader.result)
+        reader.onloadend = () => resolve(reader.result as any)
         reader.onerror = reject
         reader.readAsDataURL(blob)
     });
 }
 
-export {type IconCacheEntry, getIcon, toDataURL}
+export {type IconCacheEntry, getIconInfo, toDataURL}
