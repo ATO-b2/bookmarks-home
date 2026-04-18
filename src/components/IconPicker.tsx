@@ -2,39 +2,50 @@ import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {ReactNode, useEffect, useState} from "react";
 import {AutoBookmarkIcon, LetterBookmarkIcon} from "./BookmarkIcon.tsx";
 import Check from "../assets/check.svg?react"
-import {dao, IconAvalEntry, IconCacheEntry, toDataURL} from "../Icons.ts";
+import {fileToDataUrl, getImageDimensions, hashImage, UrlToDataUrl} from "../util/IconUtils.ts";
+import {iconAvalDAO, IconAvalEntry} from "../persistance/IconAval.ts";
+import {iconCacheDAO, IconCacheEntry} from "../persistance/IconCache.ts";
+
+interface ImageUploadInfo {
+    data: string,
+    size: number,
+    hash: string
+}
 
 function IconPicker(props: {bmData: BookmarkTreeNode}) {
     const [iconsAval, setIconsAval] = useState<IconAvalEntry[]>([]);
     const [iconCache, setIconCache] = useState<IconCacheEntry | undefined>(undefined);
+    const [uploadedImages, setUploadedImages] = useState<ImageUploadInfo[]>([])
 
     let refreshData = () => {
-        dao.iconAval.get(props.bmData.id).then(r => r && setIconsAval(r))
-        dao.iconCache.get(props.bmData.id).then(r => r && setIconCache(r))
+        iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
+        iconCacheDAO.get(props.bmData.id).then(r => r && setIconCache(r))
     }
 
     useEffect(() => {
         refreshData();
     }, []);
 
-    // function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    //     if (!e.target.files || e.target.files.length <= 0) {
-    //         return;
-    //     }
-    //     let file = e.target.files[0];
-    //
-    //     let reader = new FileReader();
-    //     reader.readAsDataURL(file);
-    //     reader.onload = () => {
-    //         setIconOptions([...iconOptions, {url: reader.result, source: "custom"} as IIconOption])
-    //     }
-    // }
+    async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+        if (!e.target.files || !e.target.files.length) {
+            return;
+        }
+        let file = e.target.files[0];
+
+        let data = await fileToDataUrl(file);
+        let r = {
+            data,
+            size: (await getImageDimensions(data)).width,
+            hash: await hashImage(data)
+        }
+        setUploadedImages([...uploadedImages, r])
+    }
 
     let handleSelectIcon = async (i: IconAvalEntry) => {
-        await dao.iconCache.put(props.bmData.id, {
+        await iconCacheDAO.put(props.bmData.id, {
             icon: {
                 url: i.url,
-                data: await toDataURL(i.url),
+                data: await UrlToDataUrl(i.url),
                 size: i.size
             },
             setByUser: true,
@@ -44,10 +55,23 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     }
 
     let handleSelectLetter = async () => {
-        await dao.iconCache.put(props.bmData.id, {
+        await iconCacheDAO.put(props.bmData.id, {
             icon: undefined,
             setByUser: true,
             source: "letter"
+        })
+        refreshData();
+    }
+
+    let handleSelectCustom = async (i: ImageUploadInfo) => {
+        await iconCacheDAO.put(props.bmData.id, {
+            icon: {
+                data: i.data,
+                hash: i.hash,
+                size: i.size
+            },
+            setByUser: true,
+            source: 'custom'
         })
         refreshData();
     }
@@ -68,9 +92,17 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             >
                 <LetterBookmarkIcon text={new URL(props.bmData.url!).hostname}/>
             </IconOption>
+            {uploadedImages.map(i =>
+                <IconOption
+                    isSelected={iconCache?.icon?.hash === i.hash}
+                    onSelect={() => handleSelectCustom(i)}
+                >
+                    <AutoBookmarkIcon imgSrc={i.data} size={i.size}/>
+                </IconOption>
+            )}
         </div>
-        {/*<h4>Custom</h4>*/}
-        {/*<input type={"file"} accept={"image/*"} className={"default"} name={"Upload"} onChange={handleImageUpload}/>*/}
+        <h4>Custom</h4>
+        <input type={"file"} accept={"image/*"} className={"default"} name={"Upload"} onChange={handleImageUpload}/>
     </>)
 }
 

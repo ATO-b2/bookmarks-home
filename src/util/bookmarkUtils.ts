@@ -1,4 +1,4 @@
-import {getBrowser} from "./main.tsx";
+import {getBrowser} from "../main.tsx";
 
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import _OnRemovedRemoveInfo = browser.bookmarks._OnRemovedRemoveInfo;

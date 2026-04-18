@@ -1,4 +1,4 @@
-import {defaultSettings, ISettings} from "../Settings.ts";
+import {defaultSettings, ISettings} from "../persistance/Settings.ts";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {ReactNode, useState} from "react";
 

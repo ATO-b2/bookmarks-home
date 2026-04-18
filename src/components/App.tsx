@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
 import FolderBody from "./FolderBody.tsx";
-import {loadSettings, writeSettings} from "../Settings.ts";
+import {loadSettings, writeSettings} from "../persistance/Settings.ts";
 import BookmarkEditor from "./BookmarkEditor.tsx";
 import {Settings} from "./Context.tsx";
 

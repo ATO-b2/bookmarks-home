@@ -1,7 +1,7 @@
 import FolderBody from "./FolderBody.tsx";
 import React, {RefObject, useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {registerBookmarkChildrenChangedListener} from "../util.ts";
+import {registerBookmarkChildrenChangedListener} from "../util/bookmarkUtils.ts";
 
 function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | null>, zIndex: number, onClose: () => void}) {
     const [viewportDims, setViewportDims] = useState<undefined | {x: number, y: number}>();

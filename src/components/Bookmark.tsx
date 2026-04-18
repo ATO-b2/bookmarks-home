@@ -5,7 +5,7 @@ import {ActiveDrag, Settings} from "./Context.tsx";
 import DropTargets from "./DropTargets.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import {BookmarkIcon} from "./BookmarkIcon.tsx";
-import {registerBookmarkChangedListener} from "../util.ts";
+import {registerBookmarkChangedListener} from "../util/bookmarkUtils.ts";
 
 /**
  * A component for a single bookmark

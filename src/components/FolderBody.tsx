@@ -4,7 +4,7 @@ import {Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 import Bookmark from "./Bookmark.tsx";
 import FolderButton from "./FolderButton.tsx";
-import {registerBookmarkChildrenChangedListener} from "../util.ts";
+import {registerBookmarkChildrenChangedListener} from "../util/bookmarkUtils.ts";
 
 /**
  * A component that displays the contents of a bookmark folder
