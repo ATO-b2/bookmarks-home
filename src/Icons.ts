@@ -2,28 +2,23 @@ import {getBrowser} from "./main.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
 interface IconCacheEntry {
-    url?: string,
-    data: IconInfo,
+    icon?: IconInfo,
     setByUser: boolean,
-    source: "google" | "site" | "custom"
+    source: "google" | "site" | "letter" | "custom"
 }
 
 export interface IconInfo {
-    src: string,
+    url?: string,
+    hash?: string
+    data: string,
     size: number
 }
 
+// NOTE: Used externally
 interface IconAvalEntry {
     url: string,
     size: number
 }
-
-// let iconAvalEntryToInfo = async (iae: IconAvalEntry): Promise<IconInfo> => {
-//     return {
-//         size: iae.size,
-//         src: await toDataURL(iae.url)
-//     }
-// }
 
 let dao = {
     iconCache: {
@@ -48,48 +43,52 @@ async function getIconInfo(bmData: BookmarkTreeNode): Promise<IconInfo | undefin
     let cache = await dao.iconCache.get(bmData.id);
 
     if (cache) {
-        return cache.data;
+        return cache.icon;
     } else {
         return await bestIconFromSite(bmData);
     }
 }
 
-// async function iconFromGoogle(bmData: BookmarkTreeNode) {
-//     const url = new URL('https://www.google.com/s2/favicons');
-//     url.searchParams.set("sz", "256");
-//     url.searchParams.set("domain_url", new URL(bmData.url!).origin);
-//     let resp = await fetch(url)
-//     if (!resp.ok) {
-//         return undefined;
-//     }
-//     let r = url.toString()
-//     let newCache: IconCacheEntry = {
-//         url: r,
-//         data: await toDataURL(r),
-//         setByUser: false,
-//         source: "google"
-//     }
-//
-// }
-
-async function bestIconFromSite(bmData: BookmarkTreeNode) {
+async function bestIconFromSite(bmData: BookmarkTreeNode): Promise<IconInfo | undefined> {
     let icons_aval = (await dao.iconAval.get(bmData.id));
     if (!icons_aval || !icons_aval.length) {
         return undefined
     }
 
-    let k = icons_aval[0];
-    let r = {
-        src: await toDataURL(k.url),
-        size: k.size
+    let iconAval = icons_aval[0];
+    let iconInfo = {
+        url: iconAval.url,
+        data: await toDataURL(iconAval.url),
+        size: iconAval.size
     }
     dao.iconCache.put(bmData.id, {
-        url: k.url,
-        data: r,
+        icon: iconInfo,
         setByUser: false,
         source: "site"
     })
-    return r;
+    return iconInfo;
+}
+
+async function iconFromGoogle(bmData: BookmarkTreeNode): Promise<IconInfo | undefined> {
+    const url = new URL('https://www.google.com/s2/favicons');
+    url.searchParams.set("sz", "256");
+    url.searchParams.set("domain_url", new URL(bmData.url!).origin);
+    let resp = await fetch(url)
+    if (!resp.ok) {
+        return undefined;
+    }
+    let r = url.toString()
+    let iconInfo = {
+        url: r,
+        data: await toDataURL(r),
+        size: (await getImageDimensions(r)).width
+    }
+    dao.iconCache.put(bmData.id, {
+        icon: iconInfo,
+        setByUser: false,
+        source: "google"
+    })
+    return iconInfo
 }
 
 async function toDataURL(url: string) {
@@ -103,4 +102,13 @@ async function toDataURL(url: string) {
     });
 }
 
-export {type IconCacheEntry, getIconInfo, toDataURL}
+function getImageDimensions(url: string): Promise<{width: number, height: number}> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({width: img.naturalWidth, height: img.naturalHeight});
+        img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+        img.src = url;
+    });
+}
+
+export {type IconCacheEntry, type IconAvalEntry, getIconInfo, toDataURL, dao}

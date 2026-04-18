@@ -14,7 +14,7 @@ function BookmarkIcon(props: {bmData: BookmarkTreeNode}) {
     }, []);
 
     return iconInfo
-        ? (<AutoBookmarkIcon imgSrc={iconInfo.src} size={iconInfo.size}/>)
+        ? (<AutoBookmarkIcon imgSrc={iconInfo.data} size={iconInfo.size}/>)
         : (<LetterBookmarkIcon text={new URL(props.bmData.url!).hostname}/>)
 }
 
