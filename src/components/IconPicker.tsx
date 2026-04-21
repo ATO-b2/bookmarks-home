@@ -1,5 +1,5 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {AutoBookmarkIcon, LetterBookmarkIcon} from "./BookmarkIcon.tsx";
 import Check from "../assets/check.svg?react"
 import {fileToDataUrl, getImageDimensions, hashImage, UrlToDataUrl} from "../util/IconUtils.ts";
@@ -16,6 +16,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     const [iconsAval, setIconsAval] = useState<IconAvalEntry[]>([]);
     const [iconCache, setIconCache] = useState<IconCacheEntry | undefined>(undefined);
     const [uploadedImages, setUploadedImages] = useState<ImageUploadInfo[]>([])
+    const uploadedImagesWasInit = useRef(false)
 
     let refreshData = () => {
         iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
@@ -25,6 +26,19 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     useEffect(() => {
         refreshData();
     }, []);
+
+    useEffect(() => {
+        if (iconCache && !uploadedImagesWasInit.current) {
+            if (iconCache?.source === 'custom') {
+                setUploadedImages([{
+                    data: iconCache.icon!.data,
+                    size: iconCache.icon!.size,
+                    hash: iconCache.icon!.hash!
+                }])
+            }
+            uploadedImagesWasInit.current = true;
+        }
+    }, [iconCache]);
 
     async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
         if (!e.target.files || !e.target.files.length) {
