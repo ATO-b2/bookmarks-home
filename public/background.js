@@ -6,8 +6,11 @@ getBrowser().runtime.onMessage.addListener(async (request, sender, sendResponse)
     let {siteUrl, foundIcons} = request;
     console.debug("request received:", request)
 
-    // TODO make this match any bookmark with the subdomain
-    let bmk = (await getBrowser().bookmarks.search({url: siteUrl})).at(0)
+    let hostname = new URL(siteUrl).hostname;
+    let bmk = (await getBrowser().bookmarks.search(hostname))
+        .filter(i => new URL(i.url).hostname === hostname)
+        .at(0);
+
     if (bmk) {
         const obj = { [`icon-aval-${bmk.id}`]: JSON.stringify(foundIcons) };
 
