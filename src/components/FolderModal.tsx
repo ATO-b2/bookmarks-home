@@ -27,7 +27,7 @@ function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | n
         return () => changeListener.deregister();
     }, []);
 
-    if (!props.folderRef.current || !viewportDims || !childrenCount) return;
+    if (!props.folderRef.current || !viewportDims) return;
 
     let modalPosition = (() => {
         let folderButtonElem = props.folderRef.current;
@@ -54,18 +54,20 @@ function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | n
                 style={{zIndex: props.zIndex}}
                 onClick={props.onClose}
             />
-            <div
-                className="folder-modal"
-                style={{
-                    top: modalPosition.top,
-                    left: modalPosition.left,
-                    width: modalPosition.width,
-                    zIndex: props.zIndex + 1
-                }}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <FolderBody id={props.id}/>
-            </div>
+            { !!childrenCount &&
+                <div
+                    className="folder-modal"
+                    style={{
+                        top: modalPosition.top,
+                        left: modalPosition.left,
+                        width: modalPosition.width,
+                        zIndex: props.zIndex + 1
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <FolderBody id={props.id}/>
+                </div>
+            }
         </>
     );
 }
