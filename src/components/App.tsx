@@ -10,7 +10,7 @@ import {Settings} from "./Context.tsx";
  * A component for the full body of the application
  * Also stores the trees and settings
  */
-function Body() {
+function App() {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [settings, setSettings] = useContext(Settings);
 
@@ -51,4 +51,4 @@ function Body() {
     )
 }
 
-export default Body
+export default App
