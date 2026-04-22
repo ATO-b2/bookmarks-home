@@ -50,4 +50,20 @@ function registerBookmarkChangedListener(id: string, action: () => void) {
     return { deregister }
 }
 
-export { registerBookmarkChildrenChangedListener, registerBookmarkChangedListener }
+async function getAllFolders() {
+    let tree = await getBrowser().bookmarks.getTree();
+    let folderList: BookmarkTreeNode[] = [];
+    rec(tree);
+
+    function rec(tree: BookmarkTreeNode[]) {
+        tree.forEach(item => {
+            if (item.children) {
+                folderList.push(item);
+                rec(item.children);
+            }
+        })
+    }
+    return folderList;
+}
+
+export { registerBookmarkChildrenChangedListener, registerBookmarkChangedListener, getAllFolders }

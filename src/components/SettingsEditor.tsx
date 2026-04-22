@@ -1,140 +1,140 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useContext, useEffect, useState} from "react";
-import CloseIcon from "../assets/close.svg?react"
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
+import {writeSettings} from "../persistance/Settings.ts";
+import {getAllFolders} from "../util/bookmarkUtils.ts";
 
-/**
- * A component for the settings sidebar
- *
- * @param props.tree The full bookmarks tree (for use in the root selector)
- * @param props.isOpen State for weather the menu is open
- */
-function SettingsEditor(props: {isOpen: [boolean,  React.Dispatch<React.SetStateAction<boolean>>]}) {
+function SettingsEditor() {
     const [settings, setSettings] = useContext(Settings)
-    const [open, setOpen] = props.isOpen;
-    const [folders, setFolders] = useState<BookmarkTreeNode[] | undefined>()
+    const [folders, setFolders] = useState<BookmarkTreeNode[]>([])
+
+    function saveSettings() {
+        console.log("saved settings") // TODO toast this
+        writeSettings(settings);
+    }
+
+    function patchSettings(newItems: {}, save: boolean = true) {
+        setSettings({
+            ...settings,
+            ...newItems
+        })
+        if (save) {
+            saveSettings();
+        }
+    }
 
     useEffect(() => {
-        getFoldersFromTree().then(r => setFolders(r));
+        getAllFolders().then(r => setFolders(r));
     }, []);
 
-    if (!folders) return;
+    return (<>
+        <h1>Settings</h1>
 
-    return (
-        <div id="settings-menu" className={open ? "open" : "closed"}>
-            <button id="settings-close" onClick={_ => setOpen(false)}>
-                <CloseIcon/>
-            </button>
-            <h1>Settings</h1>
+        <h3>Sort</h3>
+        <RadioButtonGroup
+            value={settings.sort}
+            onChange={e => patchSettings({sort: e})}
+        >
+            <option value={"from-bookmarks"}>Custom Order</option>
+            <option value={"alphabetical"}>Alphabetical</option>
+            <option value={"recent"}>Recently used</option>
+        </RadioButtonGroup>
+        <br/>
+        <label>
+            <input
+                type={"checkbox"}
+                checked={settings.foldersFirst}
+                onChange={e => patchSettings({foldersFirst: e.target.checked})}
+            />
+            Sort Folders First
+        </label>
 
-            <h3>Sort</h3>
-            <RadioButtonGroup value={settings.sort}
-                              onChange={e => {
-                                  setSettings({...settings, sort: e})
-                              }}>
-                <option value={"from-bookmarks"}>Custom Order</option>
-                <option value={"alphabetical"}>Alphabetical</option>
-                <option value={"recent"}>Recently used</option>
-            </RadioButtonGroup>
-            <br/>
-            <label>
-                <input type={"checkbox"}
-                       checked={settings.foldersFirst}
-                       onChange={e => setSettings({...settings, foldersFirst: e.target.checked})}/>
-                Sort Folders First
-            </label>
+        <h3>Background Type</h3>
+        <RadioButtonGroup
+            value={settings.backgroundMode}
+            onChange={e => patchSettings({backgroundMode: e})}
+        >
+            <option value={"theme"}>Default</option>
+            <option value={"color"}>Solid Color</option>
+            <option value={"image"}>Image</option>
+        </RadioButtonGroup>
 
-            <h3>Background Type</h3>
-            <RadioButtonGroup value={settings.backgroundMode}
-                              onChange={e => setSettings({...settings, backgroundMode: e})}>
-                <option value={"theme"}>Default</option>
-                <option value={"color"}>Solid Color</option>
-                <option value={"image"}>Image</option>
-            </RadioButtonGroup>
-
-            {(() => {
-                switch (settings.backgroundMode) {
-                    case "image":
-                        return (<>
-                            <h3>Background Image URL</h3>
-                            <input type={"url"}
-                                   value={settings.backgroundImage}
-                                   onBlur={e => setSettings({...settings, backgroundImage: e.target.value})}/>
-                        </>)
-                    case "color":
-                        return (<>
-                            <h3>Background Color</h3>
-                            <input type={"color"}
-                                   value={settings.backgroundColor}
-                                   onBlur={e => setSettings({...settings, backgroundColor: e.target.value})}/>
-                        </>)
-                }
-            })()}
-
-            <h3>Foreground Color</h3>
-            <input type={"color"}
-                   value={settings.foregroundColor}
-                   onChange={e => setSettings({...settings, foregroundColor: e.target.value})}/>
-
-            <h3>Root folder</h3>
-            <select value={settings.rootFolder!}
-                    onChange={e => setSettings({...settings, rootFolder: e.target.value})}>
-                {folders.map(i =>
-                    <option value={i.id}>{i.title ? i.title : "Untitled (id:" + i.id + ")"}</option>
-                )}
-            </select>
-
-            <h3>Icon Cache</h3>
-            <button className={"default"} onClick={_ => getBrowser().storage.local.clear()}>Clear Icon Cache</button>
-
-            <h3>Items</h3>
-            <label>
-                <input type={"checkbox"}
-                       checked={settings.enableDragging}
-                       onChange={e => setSettings({...settings, enableDragging: e.target.checked})}
+        {(() => {switch (settings.backgroundMode) {
+            case "image": return (<>
+                <h3>Background Image URL</h3>
+                <input
+                    type={"url"}
+                    value={settings.backgroundImage}
+                    onBlur={e => patchSettings({backgroundImage: e.target.value})}
                 />
-                Enable dragging links
-            </label>
-            <label>
-                <input type={"checkbox"}
-                       checked={!settings.editMode}
-                       onChange={e => setSettings({...settings, editMode: !e.target.checked})}
+            </>)
+            case "color": return (<>
+                <h3>Background Color</h3>
+                <input
+                    type={"color"}
+                    value={settings.backgroundColor}
+                    onChange={e => patchSettings({backgroundColor: e.target.value}, false)}
+                    onBlur={saveSettings}
                 />
-                Lock editing
-            </label>
+            </>)
+        }})()}
 
-            <h3>Open Folders</h3>
-            <label>
-                <input type={"checkbox"}
-                       checked={settings.keepFoldersOpen}
-                       onChange={e => setSettings({...settings, keepFoldersOpen: e.target.checked})}
-                />
-                Keep folders open
-            </label>
+        <h3>Foreground Color</h3>
+        <input
+            type={"color"}
+            value={settings.foregroundColor}
+            onChange={e => patchSettings({foregroundColor: e.target.value}, false)}
+            onBlur={saveSettings}
+        />
 
-        </div>
-    )
-}
+        <h3>Root folder</h3>
+        <select
+            value={settings.rootFolder!}
+            onChange={e => patchSettings({rootFolder: e.target.value})}
+        >
+            {folders.map(i =>
+                <option value={i.id}>{i.title ? i.title : "Untitled (id:" + i.id + ")"}</option>
+            )}
+        </select>
 
-/**
- * Walks the tree and creates a list of the folders
- */
-async function getFoldersFromTree() {
-    let tree = await getBrowser().bookmarks.getTree();
-    let folderList: BookmarkTreeNode[] = [];
-    rec(tree);
+        <h3>Icon Cache</h3>
+        <button
+            className={"default"}
+            onClick={_ => getBrowser().storage.local.clear()}
+        >
+            Clear Icon Cache
+        </button>
 
-    function rec(tree: BookmarkTreeNode[]) {
-        tree.forEach(item => {
-            if (item.children) {
-                folderList.push(item);
-                rec(item.children);
-            }
-        })
-    }
-    return folderList;
+        <h3>Items</h3>
+        <label>
+            <input
+                type={"checkbox"}
+                checked={settings.enableDragging}
+                onChange={e => patchSettings({enableDragging: e.target.checked})}
+            />
+            Enable dragging links
+        </label>
+        <label>
+            <input
+                type={"checkbox"}
+                checked={settings.editMode}
+                onChange={e => patchSettings({editMode: e.target.checked})}
+            />
+            Enable editing items
+        </label>
+
+        <h3>Open Folders</h3>
+        <label>
+            <input
+                type={"checkbox"}
+                checked={settings.keepFoldersOpen}
+                onChange={e => patchSettings({keepFoldersOpen: e.target.checked})}
+            />
+            Keep folders open
+        </label>
+    </>)
 }
 
 export default SettingsEditor;
