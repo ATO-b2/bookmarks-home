@@ -2,7 +2,7 @@ import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {AutoBookmarkIcon, LetterBookmarkIcon} from "./BookmarkIcon.tsx";
 import Check from "../assets/check.svg?react"
-import {fileToDataUrl, getImageDimensions, hashImage, UrlToDataUrl} from "../util/IconUtils.ts";
+import {fileToDataUrl, getImageDimensions, hashImage, urlToDataUrl} from "../util/IconUtils.ts";
 import {iconAvalDAO, IconAvalEntry} from "../persistance/IconAval.ts";
 import {iconCacheDAO, IconCacheEntry} from "../persistance/IconCache.ts";
 
@@ -12,13 +12,18 @@ interface ImageUploadInfo {
     hash: string
 }
 
+interface GoogleIconInfo extends IconAvalEntry {}
+
 function IconPicker(props: {bmData: BookmarkTreeNode}) {
     const [iconsAval, setIconsAval] = useState<IconAvalEntry[]>([]);
     const [iconCache, setIconCache] = useState<IconCacheEntry | undefined>(undefined);
     const [uploadedImages, setUploadedImages] = useState<ImageUploadInfo[]>([])
+    const [googleIcon, setGoogleIcon] = useState<GoogleIconInfo | undefined>(undefined)
+
     const uploadedImagesWasInit = useRef(false)
 
     let refreshData = () => {
+        getGoogleIcon(props.bmData).then(r => r && setGoogleIcon(r))
         iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
         iconCacheDAO.get(props.bmData.id).then(r => r && setIconCache(r))
     }
@@ -59,7 +64,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
         await iconCacheDAO.put(props.bmData.id, {
             icon: {
                 url: i.url,
-                data: await UrlToDataUrl(i.url),
+                data: await urlToDataUrl(i.url),
                 size: i.size
             },
             setByUser: true,
@@ -90,22 +95,43 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
         refreshData();
     }
 
+    let handleSelectGoogle = async () => {
+        await iconCacheDAO.put(props.bmData.id, {
+            icon: {
+                data: await urlToDataUrl(googleIcon!.url),
+                url: googleIcon!.url,
+                size: googleIcon!.size
+            },
+            setByUser: true,
+            source: "google"
+        })
+        refreshData();
+    }
+
     return (<>
         <div className={"icon-selector"}>
-            {iconsAval.map(i =>
-                <IconOption
-                    isSelected={iconCache?.icon?.url == i.url}
-                    onSelect={() => handleSelectIcon(i)}
-                >
-                    <AutoBookmarkIcon imgSrc={i.url} size={i.size}/>
-                </IconOption>
-            )}
             <IconOption
                 isSelected={!iconCache?.icon}
                 onSelect={handleSelectLetter}
             >
                 <LetterBookmarkIcon text={new URL(props.bmData.url!).hostname}/>
             </IconOption>
+            {googleIcon && (
+                <IconOption
+                    isSelected={iconCache?.icon?.url === googleIcon.url}
+                    onSelect={handleSelectGoogle}
+                >
+                    <AutoBookmarkIcon imgSrc={googleIcon.url} size={googleIcon.size}/>
+                </IconOption>
+            )}
+            {iconsAval.map(i =>
+                <IconOption
+                    isSelected={iconCache?.icon?.url === i.url}
+                    onSelect={() => handleSelectIcon(i)}
+                >
+                    <AutoBookmarkIcon imgSrc={i.url} size={i.size}/>
+                </IconOption>
+            )}
             {uploadedImages.map(i =>
                 <IconOption
                     isSelected={iconCache?.icon?.hash === i.hash}
@@ -129,6 +155,21 @@ function IconOption(props: {children: ReactNode, isSelected: boolean, onSelect: 
             </div>}
         </div>
     )
+}
+
+async function getGoogleIcon(bmData: BookmarkTreeNode): Promise<GoogleIconInfo | undefined> {
+    const url = new URL('https://www.google.com/s2/favicons');
+    url.searchParams.set("sz", "256");
+    url.searchParams.set("domain_url", new URL(bmData.url!).origin);
+    let resp = await fetch(url)
+    if (!resp.ok) {
+        return undefined;
+    }
+    let r = url.toString()
+    return {
+        url: r,
+        size: (await getImageDimensions(r)).width
+    }
 }
 
 export default IconPicker;

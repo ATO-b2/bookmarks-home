@@ -1,4 +1,4 @@
-async function UrlToDataUrl(url: string) {
+async function urlToDataUrl(url: string) {
     let response = await fetch(url);
     let blob: Blob = await response.blob();
     return await new Promise<string>((resolve, reject) => {
@@ -42,4 +42,4 @@ async function hashImage(dataUrl: string): Promise<string> {
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export {UrlToDataUrl, getImageDimensions, fileToDataUrl, hashImage}
+export {urlToDataUrl, getImageDimensions, fileToDataUrl, hashImage}
