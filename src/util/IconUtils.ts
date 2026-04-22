@@ -42,4 +42,24 @@ async function hashImage(dataUrl: string): Promise<string> {
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export {urlToDataUrl, getImageDimensions, fileToDataUrl, hashImage}
+interface GoogleIconInfo {
+    url: string
+    size: number
+}
+
+async function getGoogleIcon(siteUrl: string): Promise<GoogleIconInfo | undefined> {
+    const url = new URL('https://www.google.com/s2/favicons');
+    url.searchParams.set("sz", "256");
+    url.searchParams.set("domain_url", new URL(siteUrl).origin);
+    let resp = await fetch(url)
+    if (!resp.ok) {
+        return undefined;
+    }
+    let r = url.toString()
+    return {
+        url: r,
+        size: (await getImageDimensions(r)).width
+    }
+}
+
+export {urlToDataUrl, getImageDimensions, fileToDataUrl, hashImage, getGoogleIcon, type GoogleIconInfo}

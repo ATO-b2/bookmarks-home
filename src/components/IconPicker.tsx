@@ -2,7 +2,14 @@ import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {AutoBookmarkIcon, LetterBookmarkIcon} from "./BookmarkIcon.tsx";
 import Check from "../assets/check.svg?react"
-import {fileToDataUrl, getImageDimensions, hashImage, urlToDataUrl} from "../util/IconUtils.ts";
+import {
+    fileToDataUrl,
+    getGoogleIcon,
+    getImageDimensions,
+    GoogleIconInfo,
+    hashImage,
+    urlToDataUrl
+} from "../util/IconUtils.ts";
 import {iconAvalDAO, IconAvalEntry} from "../persistance/IconAval.ts";
 import {iconCacheDAO, IconCacheEntry} from "../persistance/IconCache.ts";
 
@@ -12,8 +19,6 @@ interface ImageUploadInfo {
     hash: string
 }
 
-interface GoogleIconInfo extends IconAvalEntry {}
-
 function IconPicker(props: {bmData: BookmarkTreeNode}) {
     const [iconsAval, setIconsAval] = useState<IconAvalEntry[]>([]);
     const [iconCache, setIconCache] = useState<IconCacheEntry | undefined>(undefined);
@@ -22,14 +27,14 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
 
     const uploadedImagesWasInit = useRef(false)
 
-    let refreshData = () => {
-        getGoogleIcon(props.bmData).then(r => r && setGoogleIcon(r))
-        iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
+    let refreshCache = () => {
         iconCacheDAO.get(props.bmData.id).then(r => r && setIconCache(r))
     }
 
     useEffect(() => {
-        refreshData();
+        refreshCache();
+        iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
+        getGoogleIcon(props.bmData.url!).then(r => r && setGoogleIcon(r))
     }, []);
 
     useEffect(() => {
@@ -45,7 +50,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
         }
     }, [iconCache]);
 
-    async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
         if (!e.target.files || !e.target.files.length) {
             return;
         }
@@ -58,9 +63,9 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             hash: await hashImage(data)
         }
         setUploadedImages([...uploadedImages, r])
-    }
+    };
 
-    let handleSelectIcon = async (i: IconAvalEntry) => {
+    let handleSelectSite = async (i: IconAvalEntry) => {
         await iconCacheDAO.put(props.bmData.id, {
             icon: {
                 url: i.url,
@@ -70,7 +75,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             setByUser: true,
             source: 'site'
         })
-        refreshData();
+        refreshCache();
     }
 
     let handleSelectLetter = async () => {
@@ -79,7 +84,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             setByUser: true,
             source: "letter"
         })
-        refreshData();
+        refreshCache();
     }
 
     let handleSelectCustom = async (i: ImageUploadInfo) => {
@@ -92,7 +97,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             setByUser: true,
             source: 'custom'
         })
-        refreshData();
+        refreshCache();
     }
 
     let handleSelectGoogle = async () => {
@@ -105,7 +110,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             setByUser: true,
             source: "google"
         })
-        refreshData();
+        refreshCache();
     }
 
     return (<>
@@ -127,7 +132,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
             {iconsAval.map(i =>
                 <IconOption
                     isSelected={iconCache?.icon?.url === i.url}
-                    onSelect={() => handleSelectIcon(i)}
+                    onSelect={() => handleSelectSite(i)}
                 >
                     <AutoBookmarkIcon imgSrc={i.url} size={i.size}/>
                 </IconOption>
@@ -150,26 +155,13 @@ function IconOption(props: {children: ReactNode, isSelected: boolean, onSelect: 
     return (
         <div className={"icon-option"} onClick={props.onSelect}>
             {props.children}
-            {props.isSelected && <div className={"selected"}>
-                <Check/>
-            </div>}
+            {props.isSelected &&
+                <div className={"selected"}>
+                    <Check/>
+                </div>
+            }
         </div>
     )
-}
-
-async function getGoogleIcon(bmData: BookmarkTreeNode): Promise<GoogleIconInfo | undefined> {
-    const url = new URL('https://www.google.com/s2/favicons');
-    url.searchParams.set("sz", "256");
-    url.searchParams.set("domain_url", new URL(bmData.url!).origin);
-    let resp = await fetch(url)
-    if (!resp.ok) {
-        return undefined;
-    }
-    let r = url.toString()
-    return {
-        url: r,
-        size: (await getImageDimensions(r)).width
-    }
 }
 
 export default IconPicker;

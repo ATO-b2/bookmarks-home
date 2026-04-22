@@ -1,5 +1,5 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import {getImageDimensions, urlToDataUrl} from "./IconUtils.ts";
+import {getGoogleIcon, urlToDataUrl} from "./IconUtils.ts";
 import {iconCacheDAO, IconInfo} from "../persistance/IconCache.ts";
 import {iconAvalDAO} from "../persistance/IconAval.ts";
 
@@ -39,18 +39,15 @@ async function bestIconFromSite(bmData: BookmarkTreeNode): Promise<IconInfo | un
 }
 
 async function iconFromGoogle(bmData: BookmarkTreeNode): Promise<IconInfo | undefined> {
-    const url = new URL('https://www.google.com/s2/favicons');
-    url.searchParams.set("sz", "256");
-    url.searchParams.set("domain_url", new URL(bmData.url!).origin);
-    let resp = await fetch(url)
-    if (!resp.ok) {
-        return undefined;
+    let googleIcon = await getGoogleIcon(bmData.url!)
+    if (!googleIcon) {
+        return undefined
     }
-    let r = url.toString()
+
     let iconInfo = {
-        url: r,
-        data: await urlToDataUrl(r),
-        size: (await getImageDimensions(r)).width
+        data: await urlToDataUrl(googleIcon.url),
+        url: googleIcon.url,
+        size: googleIcon.size
     }
     iconCacheDAO.put(bmData.id, {
         icon: iconInfo,
