@@ -36,6 +36,12 @@ body {
   overflow: auto;
 }
 
+.sidebar.swap-sides {
+  right: unset;
+  left: 0;
+  transform: translateX(-100%);
+}
+
 .sidebar.open {
   transform: translateX(0);
 }

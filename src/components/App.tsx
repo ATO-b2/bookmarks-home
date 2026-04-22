@@ -5,6 +5,7 @@ import FolderBody from "./FolderBody.tsx";
 import {loadSettings} from "../persistance/Settings.ts";
 import {Settings, SidebarContent} from "./Context.tsx";
 import CloseIcon from "../assets/close.svg?react"
+import SwapIcon from "../assets/swap.svg?react"
 
 /**
  * A component for the full body of the application
@@ -41,13 +42,17 @@ function App() {
 function Sidebar() {
     const [sidebarContent, setSidebarContent] = useContext(SidebarContent)
 
+    const [swapSides, setSwapSides] = useState(false)
+
     let open = !!sidebarContent
 
     return (
-        <div className={`sidebar ${open && "open"}`}>
+        <div className={`sidebar ${open && "open"} ${swapSides && 'swap-sides'}`}>
             <div className={'action-area'}>
-                <button
-                    onClick={() => setSidebarContent(null)}>
+                <button onClick={() => setSwapSides(!swapSides)}>
+                    <SwapIcon/>
+                </button>
+                <button onClick={() => setSidebarContent(null)}>
                     <CloseIcon/>
                 </button>
             </div>
