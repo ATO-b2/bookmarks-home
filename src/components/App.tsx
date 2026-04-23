@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
 import FolderBody from "./FolderBody.tsx";
-import {loadSettings} from "../persistance/Settings.ts";
+import {defaultSettings, loadSettings} from "../persistance/Settings.ts";
 import {Settings, SidebarContent} from "./Context.tsx";
 import CloseIcon from "../assets/close.svg?react"
 import SwapIcon from "../assets/swap.svg?react"
@@ -16,18 +16,24 @@ function App() {
     const [settings, setSettings] = useContext(Settings);
 
     useEffect(() => {
-        loadSettings().then(r => setSettings(r))
+        loadSettings().then(r => setSettings(r));
     }, [])
+
+    useEffect(() => {
+        if (!settings) return;
+
+        const css = document.documentElement.style
+        css.setProperty('--background', settings.backgroundColor);
+        css.setProperty('--foreground', settings.foregroundColor);
+        css.setProperty('--modal-border', settings.modalBorderColor);
+        css.setProperty('--modal-foreground', settings.modalForegroundColor)
+        css.setProperty('--modal-background', settings.modalBackgroundColor);
+    }, [settings]);
 
     if (!settings) return;
 
     return (
         <>
-            {(() => {switch (settings.backgroundMode) {
-                case "color": return (<style>{"body {background-color: " + settings.backgroundColor + "; }"}</style>)
-                case "image": return (<style>{"body {background-image: url(\"" + settings.backgroundImage + "\"); }"}</style>)
-            }})()}
-            <style>{"body > .folderBody, a {color: " + settings.foregroundColor + "; }"}</style>
             <div className={"action-area"}>
                 <button onClick={() => setSidebarContent(<SettingsEditor/>)}>
                     <SettingsIcon/>
@@ -47,7 +53,7 @@ function Sidebar() {
     let open = !!sidebarContent
 
     return (
-        <div className={`sidebar ${open && "open"} ${swapSides && 'swap-sides'}`}>
+        <div className={`sidebar ${open ? 'open' : ''} ${swapSides ? 'swap-sides' : ''}`}>
             <div className={'action-area'}>
                 <button onClick={() => setSwapSides(!swapSides)}>
                     <SwapIcon/>

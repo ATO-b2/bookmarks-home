@@ -3,7 +3,7 @@ import React, {useContext, useEffect, useState} from "react";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
-import {writeSettings} from "../persistance/Settings.ts";
+import {defaultSettings, writeSettings} from "../persistance/Settings.ts";
 import {getAllFolders} from "../util/bookmarkUtils.ts";
 
 function SettingsEditor() {
@@ -29,6 +29,17 @@ function SettingsEditor() {
         getAllFolders().then(r => setFolders(r));
     }, []);
 
+    let resetDefaultColors = () => {
+        patchSettings({
+            foregroundColor: defaultSettings.foregroundColor,
+            backgroundColor: defaultSettings.backgroundColor,
+            modalForegroundColor: defaultSettings.modalForegroundColor,
+            modalBackgroundColor: defaultSettings.modalBackgroundColor,
+            modalBorderColor: defaultSettings.modalBorderColor,
+        })
+        saveSettings();
+    }
+
     return (<>
         <h1>Settings</h1>
 
@@ -51,43 +62,59 @@ function SettingsEditor() {
             Sort Folders First
         </label>
 
-        <h3>Background Type</h3>
-        <RadioButtonGroup
-            value={settings.backgroundMode}
-            onChange={e => patchSettings({backgroundMode: e})}
+        <h3>Colors</h3>
+        <label>
+            Foreground:
+            <input
+                type={"color"}
+                value={settings.foregroundColor}
+                onChange={e => patchSettings({foregroundColor: e.target.value}, false)}
+                onBlur={saveSettings}
+            />
+        </label>
+        <label>
+            Background:
+            <input
+                type={"color"}
+                value={settings.backgroundColor}
+                onChange={e => patchSettings({backgroundColor: e.target.value}, false)}
+                onBlur={saveSettings}
+            />
+        </label>
+        <label>
+            Folder foreground:
+            <input
+                type={"color"}
+                value={settings.modalForegroundColor}
+                onChange={e => patchSettings({modalForegroundColor: e.target.value}, false)}
+                onBlur={saveSettings}
+            />
+        </label>
+        <label>
+            Folder background:
+            <input
+                type={"color"}
+                value={settings.modalBackgroundColor}
+                onChange={e => patchSettings({modalBackgroundColor: e.target.value}, false)}
+                onBlur={saveSettings}
+            />
+        </label>
+        <label>
+            Folder border:
+            <input
+                type={"color"}
+                value={settings.modalBorderColor}
+                onChange={e => patchSettings({modalBorderColor: e.target.value}, false)}
+                onBlur={saveSettings}
+            />
+        </label>
+        <br/>
+        <button
+            className={"default"}
+            onClick={resetDefaultColors}
         >
-            <option value={"theme"}>Default</option>
-            <option value={"color"}>Solid Color</option>
-            <option value={"image"}>Image</option>
-        </RadioButtonGroup>
-
-        {(() => {switch (settings.backgroundMode) {
-            case "image": return (<>
-                <h3>Background Image URL</h3>
-                <input
-                    type={"url"}
-                    value={settings.backgroundImage}
-                    onBlur={e => patchSettings({backgroundImage: e.target.value})}
-                />
-            </>)
-            case "color": return (<>
-                <h3>Background Color</h3>
-                <input
-                    type={"color"}
-                    value={settings.backgroundColor}
-                    onChange={e => patchSettings({backgroundColor: e.target.value}, false)}
-                    onBlur={saveSettings}
-                />
-            </>)
-        }})()}
-
-        <h3>Foreground Color</h3>
-        <input
-            type={"color"}
-            value={settings.foregroundColor}
-            onChange={e => patchSettings({foregroundColor: e.target.value}, false)}
-            onBlur={saveSettings}
-        />
+            Reset default colors
+        </button>
 
         <h3>Root folder</h3>
         <select

@@ -2,14 +2,27 @@
   box-sizing: border-box;
 }
 
+html {
+  --background: unset;
+  --foreground: unset;
+  --modal-border: unset;
+  --modal-background: unset;
+  --modal-foreground: unset;
+}
+
+a {
+  color: white;
+  text-decoration: none;
+}
+
 html, body {
   margin: 0;
   padding: 0;
 }
 
 body {
-  background-color: #242424;
-  color: white;
+  background: var(--background);
+  color: var(--foreground);
   font-family: sans-serif;
   margin: 0;
   padding: 0;
@@ -18,7 +31,13 @@ body {
   background-size: cover;
 }
 
+body > .folderBody, a {
+  color: var(--foreground);
+}
+
 .sidebar {
+  --foreground: white;
+  color: white;
   position: fixed;
   height: 100%;
   width: 300px;
@@ -64,9 +83,10 @@ body {
 
 /* Folder Modal */
 .folder-modal {
+  --foreground: var(--modal-foreground);
   position: absolute;
-  background-color: rgba(25, 25, 25);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--modal-background);
+  border: 2px solid var(--modal-border);
   border-radius: 5px;
   overflow: visible;
   animation: fadeIn 0.2s ease;
@@ -172,12 +192,8 @@ body > .folderBody {
 }
 
 .bookmark:hover {
+  /*background-color: color-mix(in srgb-linear, var(--background), var(--foreground) 20%);*/
   background-color: rgba(0, 0, 0, 0.3);
-}
-
-a {
-  color: white;
-  text-decoration: none;
 }
 
 .action-area {
@@ -201,10 +217,11 @@ a {
 button:not(.default) {
   border-style: none;
   background: none;
-  color: white;
+  color: var(--foreground);
 }
 
 button:hover:not(.default) {
+  /*background-color: color-mix(in srgb-linear, var(--background), var(--foreground) 20%);*/
   background-color: rgba(0, 0, 0, 0.3);
 }
 
@@ -321,6 +338,7 @@ button:hover:not(.default) {
 .context-menu {
   display: flex;
   flex-direction: column;
+  --foreground: white;
   background-color: black;
   color: white;
   fill: white;
@@ -348,10 +366,6 @@ button:hover:not(.default) {
 
   svg {
     max-height: 100%;
-  }
-
-  button:hover {
-    background-color: #242424;
   }
 
   .del {
@@ -388,4 +402,14 @@ button:hover:not(.default) {
 
 .icon-option {
   position: relative;
+}
+
+label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+input[type='color'] {
+  background-color: transparent;
 }
