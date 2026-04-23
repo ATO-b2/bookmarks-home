@@ -1,87 +1,165 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import React, {useEffect, useState} from "react";
-import {getBrowser} from "../main.tsx";
-import BMIcon from "./BMIcon.tsx";
+import React, {ReactNode, useEffect, useRef, useState} from "react";
+import {AutoBookmarkIcon, LetterBookmarkIcon} from "./BookmarkIcon.tsx";
 import Check from "../assets/check.svg?react"
-import {IconCacheEntry, toDataURL} from "../Icons.ts";
+import {
+    fileToDataUrl,
+    getGoogleIcon,
+    getImageDimensions,
+    GoogleIconInfo,
+    hashImage,
+    urlToDataUrl
+} from "../util/IconUtils.ts";
+import {iconAvalDAO, IconAvalEntry} from "../persistance/IconAval.ts";
+import {iconCacheDAO, IconCacheEntry} from "../persistance/IconCache.ts";
 
-interface IIconOption {
-    url: string,
-    source: "google" | "site" | "custom"
+interface ImageUploadInfo {
+    data: string,
+    size: number,
+    hash: string
 }
 
 function IconPicker(props: {bmData: BookmarkTreeNode}) {
-    const [iconOptions, setIconOptions] = useState<IIconOption[]>([]);
+    const [iconsAval, setIconsAval] = useState<IconAvalEntry[]>([]);
     const [iconCache, setIconCache] = useState<IconCacheEntry | undefined>(undefined);
+    const [uploadedImages, setUploadedImages] = useState<ImageUploadInfo[]>([])
+    const [googleIcon, setGoogleIcon] = useState<GoogleIconInfo | undefined>(undefined)
+
+    const uploadedImagesWasInit = useRef(false)
+
+    let refreshCache = () => {
+        iconCacheDAO.get(props.bmData.id).then(r => r && setIconCache(r))
+    }
 
     useEffect(() => {
-        getBrowser().storage.local.get("icon-cache-"+props.bmData.id).then(r => {
-            setIconCache(r["icon-cache-"+props.bmData.id]);
-        });
-
-        (async ()=>{
-            let iconOptions2: IIconOption[] = [];
-
-            const gURL = new URL('https://www.google.com/s2/favicons');
-            gURL.searchParams.set("sz", "256");
-            gURL.searchParams.set("domain_url", new URL(props.bmData.url!).origin);
-            let gResponse = await fetch(gURL)
-            if (gResponse) {
-                iconOptions2.push({
-                    url: gURL.toString(),
-                    source: "google"
-                })
-            }
-
-            let siteIcons: string[] = (await getBrowser().storage.local.get("icon-aval-"+props.bmData.id))["icon-aval-" + props.bmData.id]
-            if (siteIcons) {
-                iconOptions2.push(...siteIcons.map(ic => ({url: ic, source: "site"} as IIconOption)))
-            }
-
-            setIconOptions(iconOptions2);
-        })()
+        refreshCache();
+        iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
+        getGoogleIcon(props.bmData.url!).then(r => r && setGoogleIcon(r))
     }, []);
 
-    function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-        if (!e.target.files || e.target.files.length <= 0) {
+    useEffect(() => {
+        if (iconCache && !uploadedImagesWasInit.current) {
+            if (iconCache?.source === 'custom') {
+                setUploadedImages([{
+                    data: iconCache.icon!.data,
+                    size: iconCache.icon!.size,
+                    hash: iconCache.icon!.hash!
+                }])
+            }
+            uploadedImagesWasInit.current = true;
+        }
+    }, [iconCache]);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if (!e.target.files || !e.target.files.length) {
             return;
         }
         let file = e.target.files[0];
 
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            setIconOptions([...iconOptions, {url: reader.result, source: "custom"} as IIconOption])
+        let data = await fileToDataUrl(file);
+        let r = {
+            data,
+            size: (await getImageDimensions(data)).width,
+            hash: await hashImage(data)
         }
+        setUploadedImages([...uploadedImages, r])
+    };
+
+    let handleSelectSite = async (i: IconAvalEntry) => {
+        await iconCacheDAO.put(props.bmData.id, {
+            icon: {
+                url: i.url,
+                data: await urlToDataUrl(i.url),
+                size: i.size
+            },
+            setByUser: true,
+            source: 'site'
+        })
+        refreshCache();
+    }
+
+    let handleSelectLetter = async () => {
+        await iconCacheDAO.put(props.bmData.id, {
+            icon: undefined,
+            setByUser: true,
+            source: "letter"
+        })
+        refreshCache();
+    }
+
+    let handleSelectCustom = async (i: ImageUploadInfo) => {
+        await iconCacheDAO.put(props.bmData.id, {
+            icon: {
+                data: i.data,
+                hash: i.hash,
+                size: i.size
+            },
+            setByUser: true,
+            source: 'custom'
+        })
+        refreshCache();
+    }
+
+    let handleSelectGoogle = async () => {
+        await iconCacheDAO.put(props.bmData.id, {
+            icon: {
+                data: await urlToDataUrl(googleIcon!.url),
+                url: googleIcon!.url,
+                size: googleIcon!.size
+            },
+            setByUser: true,
+            source: "google"
+        })
+        refreshCache();
     }
 
     return (<>
         <div className={"icon-selector"}>
-            {iconOptions &&
-                iconOptions.map(i => <IconOption ico={i} isSelected={iconCache?.url == i.url} isSelectedAuto={false} id={props.bmData.id} />)
-            }
+            <IconOption
+                isSelected={!iconCache?.icon}
+                onSelect={handleSelectLetter}
+            >
+                <LetterBookmarkIcon text={new URL(props.bmData.url!).hostname}/>
+            </IconOption>
+            {googleIcon && (
+                <IconOption
+                    isSelected={iconCache?.icon?.url === googleIcon.url}
+                    onSelect={handleSelectGoogle}
+                >
+                    <AutoBookmarkIcon imgSrc={googleIcon.url} size={googleIcon.size}/>
+                </IconOption>
+            )}
+            {iconsAval.map(i =>
+                <IconOption
+                    isSelected={iconCache?.icon?.url === i.url}
+                    onSelect={() => handleSelectSite(i)}
+                >
+                    <AutoBookmarkIcon imgSrc={i.url} size={i.size}/>
+                </IconOption>
+            )}
+            {uploadedImages.map(i =>
+                <IconOption
+                    isSelected={iconCache?.icon?.hash === i.hash}
+                    onSelect={() => handleSelectCustom(i)}
+                >
+                    <AutoBookmarkIcon imgSrc={i.data} size={i.size}/>
+                </IconOption>
+            )}
         </div>
         <h4>Custom</h4>
         <input type={"file"} accept={"image/*"} className={"default"} name={"Upload"} onChange={handleImageUpload}/>
     </>)
 }
 
-function IconOption(props: {ico: IIconOption, isSelected: boolean, isSelectedAuto: boolean, id: string}) {
-
-    async function handleClick() {
-        await getBrowser().storage.local.set({["icon-cache-"+props.id]: {
-                ...props.ico,
-                data: await toDataURL(props.ico.url),
-                setByUser: true
-            } as IconCacheEntry})
-    }
-
+function IconOption(props: {children: ReactNode, isSelected: boolean, onSelect: () => void}) {
     return (
-        <div className={"icon-option"} onClick={handleClick}>
-            <BMIcon imgSrc={props.ico.url}/>
-            {props.isSelected && <div className={"selected"}>
-                <Check/>
-            </div>}
+        <div className={"icon-option"} onClick={props.onSelect}>
+            {props.children}
+            {props.isSelected &&
+                <div className={"selected"}>
+                    <Check/>
+                </div>
+            }
         </div>
     )
 }

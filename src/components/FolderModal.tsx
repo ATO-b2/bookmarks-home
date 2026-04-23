@@ -1,7 +1,7 @@
 import FolderBody from "./FolderBody.tsx";
 import React, {RefObject, useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {registerBookmarkChildrenChangedListener} from "../util.ts";
+import {registerBookmarkChildrenChangedListener} from "../util/bookmarkUtils.ts";
 
 function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | null>, zIndex: number, onClose: () => void}) {
     const [viewportDims, setViewportDims] = useState<undefined | {x: number, y: number}>();
@@ -27,7 +27,7 @@ function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | n
         return () => changeListener.deregister();
     }, []);
 
-    if (!props.folderRef.current || !viewportDims || !childrenCount) return;
+    if (!props.folderRef.current || !viewportDims) return;
 
     let modalPosition = (() => {
         let folderButtonElem = props.folderRef.current;
@@ -54,18 +54,20 @@ function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | n
                 style={{zIndex: props.zIndex}}
                 onClick={props.onClose}
             />
-            <div
-                className="folder-modal"
-                style={{
-                    top: modalPosition.top,
-                    left: modalPosition.left,
-                    width: modalPosition.width,
-                    zIndex: props.zIndex + 1
-                }}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <FolderBody id={props.id}/>
-            </div>
+            { !!childrenCount &&
+                <div
+                    className="folder-modal"
+                    style={{
+                        top: modalPosition.top,
+                        left: modalPosition.left,
+                        width: modalPosition.width,
+                        zIndex: props.zIndex + 1
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <FolderBody id={props.id}/>
+                </div>
+            }
         </>
     );
 }

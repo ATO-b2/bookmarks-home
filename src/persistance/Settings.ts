@@ -1,4 +1,4 @@
-import {getBrowser} from "./main.tsx";
+import {getBrowser} from "../main.tsx";
 
 export interface ISettings {
     sort: "from-bookmarks" | "alphabetical" | "recent"

@@ -3,7 +3,7 @@ import EditIcon from "../assets/edit.svg?react";
 import MoreIcon from "../assets/more.svg?react";
 import React, {useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {ActiveEdit, Settings} from "./Body.tsx";
+import {ActiveEdit, Settings} from "./Context.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
 function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {

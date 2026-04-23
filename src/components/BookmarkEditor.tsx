@@ -1,15 +1,10 @@
 import React, {useContext, useEffect, useState} from "react";
 import CloseIcon from "../assets/close.svg?react"
-import {ActiveEdit} from "./Body.tsx";
+import {ActiveEdit} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
-import RadioButtonGroup from "./RadioButtonGroup.tsx";
-import BMIcon from "./BMIcon.tsx";
 import IconPicker from "./IconPicker.tsx";
 
-
-
-
-function BMEditor() {
+function BookmarkEditor() {
     const [activeEdit, setActiveEdit] = useContext(ActiveEdit);
 
     useEffect(() => {
@@ -24,7 +19,7 @@ function BMEditor() {
         getBrowser().bookmarks.update(activeEdit!.id, {url: e.target.value})
     }
 
-    let isFolder = activeEdit && activeEdit.children /*&& activeEdit.children.length > 0;*/
+    let isFolder = activeEdit && !activeEdit.url
     return (
         <div id="settings-menu" className={activeEdit ? "open" : "closed"}>
             <button id="settings-close" onClick={_ => setActiveEdit(null)}>
@@ -40,14 +35,13 @@ function BMEditor() {
                 {!isFolder && (<>
                     <h3>URL</h3>
                     <input type={"url"} defaultValue={activeEdit?.url} onBlur={handleURLChange}/>
+
+                    <h3>Icon</h3>
+                    <IconPicker bmData={activeEdit}/>
                 </>)}
-
-                <h3>Icon</h3>
-                <IconPicker bmData={activeEdit}/>
-
             </>)}
         </div>
     );
 }
 
-export default BMEditor;
+export default BookmarkEditor;

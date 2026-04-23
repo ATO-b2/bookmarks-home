@@ -1,4 +1,4 @@
-import {getBrowser} from "./main.tsx";
+import {getBrowser} from "../main.tsx";
 
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import _OnRemovedRemoveInfo = browser.bookmarks._OnRemovedRemoveInfo;
@@ -37,4 +37,17 @@ function registerBookmarkChildrenChangedListener(id: string, action: () => void)
     return { deregister }
 }
 
-export { registerBookmarkChildrenChangedListener }
+function registerBookmarkChangedListener(id: string, action: () => void) {
+    let change = (id2: string) => {
+        if (id2 !== id) return;
+        action();
+    }
+
+    getBrowser().bookmarks.onChanged.addListener(change);
+
+    let deregister = () => getBrowser().bookmarks.onChanged.removeListener(change);
+
+    return { deregister }
+}
+
+export { registerBookmarkChildrenChangedListener, registerBookmarkChangedListener }

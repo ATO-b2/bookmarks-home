@@ -3,7 +3,7 @@ import FolderIcon from "../assets/folder.svg?react"
 import FolderIconOpen from "../assets/folder_open.svg?react"
 import React, {useEffect, useRef, useState} from "react";
 import DropTargets from "./DropTargets.tsx";
-import {ActiveDrag, OpenFolders, Settings} from "./Body.tsx";
+import {ActiveDrag, OpenFolders, Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import FolderModal from "./FolderModal.tsx";

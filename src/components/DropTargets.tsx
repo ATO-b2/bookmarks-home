@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import {ActiveDrag, Settings} from "./Body.tsx";
+import {ActiveDrag, Settings} from "./Context.tsx";
 import CreateFolderIcon from "../assets/create_folder.svg?react"
 import {getBrowser} from "../main.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;

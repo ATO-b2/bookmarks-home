@@ -1,11 +1,11 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {ActiveDrag, ActiveEdit, Settings} from "./Body.tsx";
+import {ActiveDrag, Settings} from "./Context.tsx";
 import DropTargets from "./DropTargets.tsx";
 import ContextMenu from "./ContextMenu.tsx";
-import BMIcon from "./BMIcon.tsx";
-import {getIcon} from "../Icons.ts";
+import {BookmarkIcon} from "./BookmarkIcon.tsx";
+import {registerBookmarkChangedListener} from "../util/bookmarkUtils.ts";
 
 /**
  * A component for a single bookmark
@@ -17,21 +17,19 @@ function Bookmark(props: {id: string}) {
     const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
 
     useEffect(() => {
-        getBrowser().bookmarks.get(props.id).then(r => {
-            setBmData(r[0]);
-        })
-
-        getBrowser().bookmarks.onChanged.addListener((id: string) => {
-            if (id !== props.id) return;
+        let updateBookmark = () => {
             getBrowser().bookmarks.get(props.id).then(r => {
                 setBmData(r[0]);
             })
-        })
+        }
+        updateBookmark();
+        let changeListener = registerBookmarkChangedListener(props.id, updateBookmark);
+
+        return () => changeListener.deregister();
     }, []);
 
     if (!bmData) return;
 
-    // Dragging
     return(
         <div className={"bookmark"} id={bmData.id}>
             <a
@@ -40,7 +38,7 @@ function Bookmark(props: {id: string}) {
                 onDragStart={() => setActiveDrag(bmData)}
                 onDragEnd={() => setActiveDrag(null)}
             >
-                <IconPre bmData={bmData}/>
+                <BookmarkIcon bmData={bmData}/>
                 <span>{bmData.title}</span>
             </a>
             <ContextMenu bmData={bmData}/>
@@ -50,14 +48,3 @@ function Bookmark(props: {id: string}) {
 }
 
 export default Bookmark;
-
-function IconPre(props: {bmData: BookmarkTreeNode}) {
-    const [data, setData] = useState<string>()
-
-    useEffect(() => {
-        getIcon(props.bmData, setData)
-    }, []);
-
-    // if (!data) return;
-    return <BMIcon bmUrl={props.bmData.url} imgSrc={data}/>
-}
