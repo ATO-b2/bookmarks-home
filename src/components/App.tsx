@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
 import FolderBody from "./FolderBody.tsx";
-import {defaultSettings, loadSettings} from "../persistance/Settings.ts";
+import {loadSettings} from "../persistance/Settings.ts";
 import {Settings, SidebarContent} from "./Context.tsx";
 import CloseIcon from "../assets/close.svg?react"
 import SwapIcon from "../assets/swap.svg?react"

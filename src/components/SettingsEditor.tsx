@@ -3,25 +3,26 @@ import React, {useContext, useEffect, useState} from "react";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
-import {defaultSettings, writeSettings} from "../persistance/Settings.ts";
+import {defaultSettings, ISettings, writeSettings} from "../persistance/Settings.ts";
 import {getAllFolders} from "../util/bookmarkUtils.ts";
 
 function SettingsEditor() {
     const [settings, setSettings] = useContext(Settings)
     const [folders, setFolders] = useState<BookmarkTreeNode[]>([])
 
-    function saveSettings() {
+    function saveSettings(newSettings: ISettings) {
         console.log("saved settings") // TODO toast this
-        writeSettings(settings);
+        writeSettings(newSettings);
     }
 
     function patchSettings(newItems: {}, save: boolean = true) {
-        setSettings({
+        let newSettings = {
             ...settings,
             ...newItems
-        })
+        }
+        setSettings(newSettings)
         if (save) {
-            saveSettings();
+            saveSettings(newSettings);
         }
     }
 
@@ -37,7 +38,6 @@ function SettingsEditor() {
             modalBackgroundColor: defaultSettings.modalBackgroundColor,
             modalBorderColor: defaultSettings.modalBorderColor,
         })
-        saveSettings();
     }
 
     return (<>
@@ -69,7 +69,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.foregroundColor}
                 onChange={e => patchSettings({foregroundColor: e.target.value}, false)}
-                onBlur={saveSettings}
+                onBlur={() => saveSettings(settings)}
             />
         </label>
         <label>
@@ -78,7 +78,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.backgroundColor}
                 onChange={e => patchSettings({backgroundColor: e.target.value}, false)}
-                onBlur={saveSettings}
+                onBlur={() => saveSettings(settings)}
             />
         </label>
         <label>
@@ -87,7 +87,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.modalForegroundColor}
                 onChange={e => patchSettings({modalForegroundColor: e.target.value}, false)}
-                onBlur={saveSettings}
+                onBlur={() => saveSettings(settings)}
             />
         </label>
         <label>
@@ -96,7 +96,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.modalBackgroundColor}
                 onChange={e => patchSettings({modalBackgroundColor: e.target.value}, false)}
-                onBlur={saveSettings}
+                onBlur={() => saveSettings(settings)}
             />
         </label>
         <label>
@@ -105,7 +105,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.modalBorderColor}
                 onChange={e => patchSettings({modalBorderColor: e.target.value}, false)}
-                onBlur={saveSettings}
+                onBlur={() => saveSettings(settings)}
             />
         </label>
         <br/>
