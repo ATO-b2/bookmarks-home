@@ -7,7 +7,8 @@ export interface ISettings {
     backgroundColor: string
     backgroundImage: string
     foregroundColor: string
-    editMode: boolean
+    enableDragging: boolean,
+    editMode: boolean,
     rootFolder: string | null
     keepFoldersOpen: boolean
 }
@@ -19,6 +20,7 @@ export let defaultSettings: ISettings = {
     backgroundColor: "#000000",
     backgroundImage: "",
     foregroundColor: "#FFFFFF",
+    enableDragging: true,
     editMode: false,
     rootFolder: '0',
     keepFoldersOpen: false

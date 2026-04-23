@@ -1,10 +1,13 @@
 import React, {useEffect} from "react";
-import {ActiveDrag} from "./Body.tsx";
+import {ActiveDrag, Settings} from "./Body.tsx";
 import CreateFolderIcon from "../assets/create_folder.svg?react"
+import {getBrowser} from "../main.tsx";
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
 function DropTarget(props: {children: React.ReactNode, className: string, onDrop: () => void}) {
-    let [drop, setDrop] = React.useState(false);
     let [activeDrag, _] = React.useContext(ActiveDrag);
+
+    let [drop, setDrop] = React.useState(false);
 
     useEffect(() => {
         setDrop(false);
@@ -15,7 +18,7 @@ function DropTarget(props: {children: React.ReactNode, className: string, onDrop
         setDrop(true)
     }
 
-    function handleDragLeave(e: React.DragEvent<HTMLDivElement>) {
+    function handleDragLeave() {
         setDrop(false)
     }
 
@@ -32,17 +35,57 @@ function DropTarget(props: {children: React.ReactNode, className: string, onDrop
     );
 }
 
-function DropTargets(props: { onDropLeft: () => void, onDropRight: () => void, onDropCenter: () => void }) {
+function DropTargets(props: { bmData: BookmarkTreeNode, isFolder?: boolean }) {
+    let [activeDrag] = React.useContext(ActiveDrag);
+    let [settings, ] = React.useContext(Settings);
+
+    const onDropLeft = () => {
+        getBrowser().bookmarks.move(activeDrag!.id, {
+            parentId: props.bmData.parentId,
+            index: props.bmData.index
+        })
+    };
+
+    const onDropRight = () => {
+        getBrowser().bookmarks.move(activeDrag!.id, {
+            parentId: props.bmData.parentId,
+            index: (props.bmData.index! + 1)
+        })
+    };
+
+    const onDropCenter = () => {
+        if (props.isFolder) {
+            chrome.bookmarks.create({
+                parentId: props.bmData.parentId,
+                index: props.bmData.index,
+                title: "New Folder"
+            }).then(r => {
+                getBrowser().bookmarks.move(props.bmData.id, {parentId: r.id});
+                getBrowser().bookmarks.move(activeDrag!.id, {parentId: r.id});
+                // location.reload()
+            })
+        } else {
+            getBrowser().bookmarks.move(activeDrag!.id, {
+                parentId: props.bmData.id
+            });
+        }
+    };
+
+    if (!settings.editMode
+        || !activeDrag
+        || activeDrag === props.bmData
+        || settings.sort !== "from-bookmarks"
+    ) return;
 
     return (
         <div className={"drop-targets"}>
-            <DropTarget className={"left"} onDrop={props.onDropLeft}>
+            <DropTarget className={"left"} onDrop={onDropLeft}>
                 <div/>
             </DropTarget>
-            <DropTarget className={"right"} onDrop={props.onDropRight}>
+            <DropTarget className={"right"} onDrop={onDropRight}>
                 <div/>
             </DropTarget>
-            <DropTarget className={"center"} onDrop={props.onDropCenter}>
+            <DropTarget className={"center"} onDrop={onDropCenter}>
                 <CreateFolderIcon/>
             </DropTarget>
         </div>

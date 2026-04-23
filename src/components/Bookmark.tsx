@@ -12,8 +12,7 @@ import {getIcon} from "../Icons.ts";
  */
 function Bookmark(props: {id: string}) {
     let [settings] = React.useContext(Settings);
-    let [activeDrag, setActiveDrag] = React.useContext(ActiveDrag);
-    const [, setActiveEdit] = useContext(ActiveEdit)
+    let [, setActiveDrag] = React.useContext(ActiveDrag);
 
     const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
 
@@ -33,64 +32,19 @@ function Bookmark(props: {id: string}) {
     if (!bmData) return;
 
     // Dragging
-    const handleDrag = () => {
-        setActiveDrag(bmData);
-    };
-
-    const handleDragEnd = () => {
-        setActiveDrag(null);
-    };
-
-    // Dropping
-    const handleDropLeft = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: bmData.parentId,
-            index: bmData.index
-        })
-        // location.reload()
-    };
-
-    const handleDropRight = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
-            parentId: bmData.parentId,
-            index: (bmData.index! + 1)
-        })
-        // location.reload();
-    };
-
-    const handleDropCenter = () => {
-        chrome.bookmarks.create({
-            parentId: bmData.parentId,
-            index: bmData.index,
-            title: "New Folder"
-        }).then(r => {
-            getBrowser().bookmarks.move(bmData.id, {parentId: r.id});
-            getBrowser().bookmarks.move(activeDrag!.id, {parentId: r.id});
-            // location.reload()
-        })
-    };
-
-    // actions
-    const handleDelete = () => {
-        getBrowser().bookmarks.remove(bmData.id);
-        // location.reload();
-    };
-
-    const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault()
-        setActiveEdit(null);
-        setActiveEdit(bmData);
-    };
-
     return(
         <div className={"bookmark"} id={bmData.id}>
-            <a href={bmData.url} draggable={settings.editMode && settings.sort === "from-bookmarks"} onDrag={handleDrag} onDragEnd={handleDragEnd}>
+            <a
+                href={bmData.url}
+                draggable={settings.enableDragging}
+                onDragStart={() => setActiveDrag(bmData)}
+                onDragEnd={() => setActiveDrag(null)}
+            >
                 <IconPre bmData={bmData}/>
                 <span>{bmData.title}</span>
             </a>
-            {settings.editMode && <ContextMenu onEdit={handleEdit} onDelete={handleDelete}/>}
-            {activeDrag && activeDrag !== bmData &&
-                <DropTargets onDropLeft={handleDropLeft} onDropRight={handleDropRight} onDropCenter={handleDropCenter}/>}
+            <ContextMenu bmData={bmData}/>
+            <DropTargets bmData={bmData}/>
         </div>
     );
 }
