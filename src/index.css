@@ -2,10 +2,9 @@
   box-sizing: border-box;
 }
 
-html {
+html, body {
   margin: 0;
   padding: 0;
-  height: 100%
 }
 
 body {
@@ -14,7 +13,6 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-  height: 100%;
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -27,14 +25,14 @@ body {
   background-color: black;
   padding: 10px;
   right: 0;
+  top: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   place-items: flex-start;
-  z-index: 4;
-
+  z-index: 200;
   transform: translateX(100%);
   transition: all 0.2s ease-in-out;
-
   overflow: auto;
 }
 
@@ -47,9 +45,37 @@ body {
   flex-direction: column;
 }
 
+/* Folder Modal Overlay */
+.folder-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.2s ease;
+}
+
+/* Folder Modal */
+.folder-modal {
+  position: absolute;
+  background-color: rgba(25, 25, 25);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  overflow: visible;
+  animation: fadeIn 0.2s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+.folder-modal .folderBody {
+  border: none;
+  margin: 0;
+  padding: 0;
+  animation: none;
+}
+
 /* Folder */
 .folderBody {
-  width: 100%;
   display: flex;
   flex-direction: row;
   border-style: solid;
@@ -57,13 +83,10 @@ body {
   border-radius: 5px;
   border-color: rgba(0, 0, 0, 0.5);
   margin: 5px;
-  padding: 10px;
   flex-wrap: wrap;
-  /*position: absolute;*/
-  /*bottom: 0;*/
-  animation: slideDown 0.1s ease;
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
+  height: fit-content;
 }
 
 @keyframes slideDown {
@@ -71,12 +94,11 @@ body {
 }
 
 body > .folderBody {
-  margin: 0;
+  margin: 10px;
   border-style: none;
   position: relative;
   animation: none;
   max-height: 100%;
-  overflow: auto;
 }
 
 /* Bookmark */
@@ -363,8 +385,7 @@ button:hover:not(.default) {
   top: 0;
   left: 0;
   background-color: #000000c4;
-  display: flex
-;
+  display: flex;
   right: 0;
   bottom: 0;
   align-content: center;
