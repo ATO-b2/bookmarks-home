@@ -39,7 +39,7 @@ function FolderBody(props: {id: string}) {
     if (children.length <= 0) return;
 
     return (
-        <div className={"folderBody"}>
+        <div className={"folder-body"}>
             {children.map(child =>
                 child.children
                     ? <FolderButton id={child.id} key={child.id}/>
