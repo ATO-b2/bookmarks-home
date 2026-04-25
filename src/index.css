@@ -368,6 +368,10 @@ button:hover:not(.default) {
     max-height: 100%;
   }
 
+  button:hover {
+    background-color: #242424;
+  }
+
   .del {
     color: #d00000;
     fill: #d00000;
