@@ -12,8 +12,8 @@ export const ActiveDrag =
         [null, () => {}]
     )
 
-export const ActiveEdit =
-    React.createContext<[BookmarkTreeNode | null, (arg0: BookmarkTreeNode | null) => void]>(
+export const SidebarContent =
+    React.createContext<[ReactNode | null, (arg0: ReactNode | null) => void]>(
         [null, () => {}]
     )
 
@@ -25,17 +25,17 @@ export const OpenFolders =
 function Context(props: {children: ReactNode}) {
     const [settings, setSettings] = useState<ISettings | undefined>(undefined);
     const [activeDrag, setActiveDrag] = useState<BookmarkTreeNode | null>(null);
-    const [activeEdit, setActiveEdit] = useState<BookmarkTreeNode | null>(null);
+    const [sidebarContent, setSidebarContent] = useState<ReactNode | null>(null);
     const [openFolders, setOpenFolders] = useState<string[]>([]);
 
     return (
         <Settings value={[settings!, setSettings]}>
         <ActiveDrag value={[activeDrag, setActiveDrag]}>
-        <ActiveEdit value={[activeEdit, setActiveEdit]}>
+        <SidebarContent value={[sidebarContent, setSidebarContent]}>
         <OpenFolders value={[openFolders, setOpenFolders]}>
             {props.children}
         </OpenFolders>
-        </ActiveEdit>
+        </SidebarContent>
         </ActiveDrag>
         </Settings>
     )

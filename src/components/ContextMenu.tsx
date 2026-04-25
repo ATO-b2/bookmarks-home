@@ -3,12 +3,13 @@ import EditIcon from "../assets/edit.svg?react";
 import MoreIcon from "../assets/more.svg?react";
 import React, {useEffect, useState} from "react";
 import {getBrowser} from "../main.tsx";
-import {ActiveEdit, Settings} from "./Context.tsx";
+import {Settings, SidebarContent} from "./Context.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import BookmarkEditor from "./BookmarkEditor.tsx";
 
 function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {
     let [settings, ] = React.useContext(Settings);
-    let [, setActiveEdit] = React.useContext(ActiveEdit)
+    let [, setSidebarContent] = React.useContext(SidebarContent)
 
     const [open, setOpen] = useState(false)
 
@@ -43,8 +44,7 @@ function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {
     const onEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
         setOpen(false);
         e.preventDefault();
-        setActiveEdit(null);
-        setActiveEdit(props.bmData);
+        setSidebarContent(<BookmarkEditor bmData={props.bmData}/>)
     };
 
     if (!settings.editMode) return;
@@ -57,7 +57,7 @@ function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {
             {open &&
                 <div className={"context-menu"}>
                     <button onClick={onEdit}>
-                        <EditIcon />
+                        <EditIcon/>
                         Edit
                     </button>
                     <button className={"del"} onClick={onDelete}>

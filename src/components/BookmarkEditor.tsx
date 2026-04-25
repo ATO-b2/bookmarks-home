@@ -1,47 +1,38 @@
-import React, {useContext, useEffect, useState} from "react";
-import CloseIcon from "../assets/close.svg?react"
-import {ActiveEdit} from "./Context.tsx";
 import {getBrowser} from "../main.tsx";
 import IconPicker from "./IconPicker.tsx";
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 
-function BookmarkEditor() {
-    const [activeEdit, setActiveEdit] = useContext(ActiveEdit);
+function BookmarkEditor(props: {bmData: BookmarkTreeNode}) {
 
-    useEffect(() => {
-        if (!activeEdit) return;
-    }, [activeEdit]);
-
-    function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        getBrowser().bookmarks.update(activeEdit!.id, {title: e.target.value})
+    function updateBookmark(newData: {}) {
+        console.log("updated bookmark") // TODO toast this
+        getBrowser().bookmarks.update(props.bmData.id, newData)
     }
 
-    function handleURLChange(e: React.ChangeEvent<HTMLInputElement>) {
-        getBrowser().bookmarks.update(activeEdit!.id, {url: e.target.value})
-    }
+    let isFolder = !props.bmData.url
 
-    let isFolder = activeEdit && !activeEdit.url
-    return (
-        <div id="settings-menu" className={activeEdit ? "open" : "closed"}>
-            <button id="settings-close" onClick={_ => setActiveEdit(null)}>
-                <CloseIcon/>
-            </button>
+    return (<>
+        <h1>Edit {isFolder ? "Folder" : "Bookmark"}</h1>
 
-            {activeEdit && (<>
-                <h1>Edit {isFolder ? "Folder" : "Bookmark"}</h1>
+        <h3>Name</h3>
+        <input
+            type={"text"}
+            defaultValue={props.bmData.title}
+            onBlur={e => updateBookmark({title: e.target.value})}
+        />
 
-                <h3>Name</h3>
-                <input type={"text"} defaultValue={activeEdit?.title} onBlur={handleTitleChange}/>
+        {!isFolder && (<>
+            <h3>URL</h3>
+            <input
+                type={"url"}
+                defaultValue={props.bmData.url}
+                onBlur={e => updateBookmark({url: e.target.value})}
+            />
 
-                {!isFolder && (<>
-                    <h3>URL</h3>
-                    <input type={"url"} defaultValue={activeEdit?.url} onBlur={handleURLChange}/>
-
-                    <h3>Icon</h3>
-                    <IconPicker bmData={activeEdit}/>
-                </>)}
-            </>)}
-        </div>
-    );
+            <h3>Icon</h3>
+            <IconPicker bmData={props.bmData}/>
+        </>)}
+    </>)
 }
 
 export default BookmarkEditor;
