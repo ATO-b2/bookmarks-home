@@ -19,7 +19,6 @@ function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {
             document.body.removeEventListener('click', evl);
         }
         if (open) {
-            console.log("evl registered")
             document.body.addEventListener('click', evl);
         }
     }, [open]);

@@ -5,6 +5,7 @@ import {defaultSettings, SettingsDAO} from "../persistance/Settings.ts";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {IconCacheDAO} from "../persistance/IconCache.ts";
 import {BookmarkDAO} from "../persistance/Bookmarks.ts";
+import {getBrowserName} from "../main.tsx";
 
 function SettingsEditor() {
     let [settings, setSettings] = useContext(Settings)
@@ -50,7 +51,9 @@ function SettingsEditor() {
         >
             <option value={"from-bookmarks"}>Custom Order</option>
             <option value={"alphabetical"}>Alphabetical</option>
-            <option value={"recent"}>Recently used</option>
+            {getBrowserName() === "chrome" &&
+                (<option value={"recent"}>Recently used</option>)
+            }
         </RadioButtonGroup>
         <br/>
         <label>

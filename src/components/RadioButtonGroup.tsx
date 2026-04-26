@@ -1,13 +1,13 @@
 import React, {ReactElement, useEffect, useId, useState} from "react";
 
-type OptionElement = {props: {value: any, children: ReactElement}};
+type OptionElement = {props: {value: string, children: ReactElement}} | undefined | false | null;
 
-function RadioButtonGroup(props: { children: OptionElement[], value: any, onChange?: (arg0: any) => void }) {
+function RadioButtonGroup(props: { children: OptionElement[], value: string, onChange?: (arg0: string) => void }) {
     const [selected, setSelected] = useState(props.value);
 
     useEffect(() => {
         setSelected(props.value);
-    }, [props.value]);
+    }, []);
 
     useEffect(() => {
         props.onChange && props.onChange(selected);
@@ -15,7 +15,7 @@ function RadioButtonGroup(props: { children: OptionElement[], value: any, onChan
 
     return (
         <div className="radio-group">
-            { props.children && props.children.map((item) => (
+            { props.children.map((item) => item && (
                 <label>
                     <input
                         type="radio"

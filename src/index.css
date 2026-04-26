@@ -211,6 +211,10 @@ body {
   input[type='color'] {
     background-color: transparent;
   }
+
+  .note {
+    padding-top: 10px;
+  }
 }
 
 .icon-selector {
