@@ -2,7 +2,7 @@ import React, {SyntheticEvent, useEffect, useState} from "react";
 import ColorThief from "colorthief";
 import {getIconInfo} from "../util/Icons.ts";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
-import {iconCacheDAO, IconInfo} from "../persistance/IconCache.ts";
+import {IconCacheDAO, IconInfo} from "../persistance/IconCache.ts";
 
 // from bookmark data
 function BookmarkIcon(props: {bmData: BookmarkTreeNode}) {
@@ -13,7 +13,7 @@ function BookmarkIcon(props: {bmData: BookmarkTreeNode}) {
     }
 
     useEffect(() => {
-        let changeListener = iconCacheDAO.registerChangedListener(props.bmData.id, () => {
+        let changeListener = IconCacheDAO.registerChangedListener(props.bmData.id, () => {
             updateIconInfo();
         })
         updateIconInfo();

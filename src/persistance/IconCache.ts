@@ -14,21 +14,23 @@ interface IconInfo {
 }
 
 class IconCacheDAO {
-    private changeListeners: ((id: string) => void)[] = [];
+    private static readonly KEY = (id: string) => `icon-cache-${id}`
 
-    async get(id: string): Promise<IconCacheEntry | undefined> {
-        let data = Object.values(await getBrowser().storage.local.get(`icon-cache-${id}`)).at(0);
+    private static changeListeners: ((id: string) => void)[] = [];
+
+    static async get(id: string): Promise<IconCacheEntry | undefined> {
+        let data = Object.values(await getBrowser().storage.local.get(this.KEY(id))).at(0);
         return data ? JSON.parse(data) : undefined;
     }
 
-    async put(id: string, entry: IconCacheEntry) {
+    static async put(id: string, entry: IconCacheEntry) {
         let data = JSON.stringify(entry);
-        let r = await getBrowser().storage.local.set({[`icon-cache-${id}`]: data});
+        let r = await getBrowser().storage.local.set({[this.KEY(id)]: data});
         this.changeListeners.forEach(ch => ch(id));
         return r;
     }
 
-    registerChangedListener(id: string, action: () => void) {
+    static registerChangedListener(id: string, action: () => void) {
         let change = (cId: string) => {
             if (id !== cId) return;
             action();
@@ -44,6 +46,4 @@ class IconCacheDAO {
     }
 }
 
-let iconCacheDAO = new IconCacheDAO();
-
-export {iconCacheDAO, type IconCacheEntry, type IconInfo};
+export {IconCacheDAO, type IconCacheEntry, type IconInfo};

@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
 import FolderBody from "./FolderBody.tsx";
-import {loadSettings} from "../persistance/Settings.ts";
+import {SettingsDAO} from "../persistance/Settings.ts";
 import {OpenFolders, Settings, SidebarContent} from "./Context.tsx";
 import CloseIcon from "../assets/close.svg?react"
 import SwapIcon from "../assets/swap.svg?react"
@@ -15,7 +15,7 @@ function App() {
     const [openFolders, setOpenFolders] = useContext(OpenFolders);
 
     useEffect(() => {
-        loadSettings().then(r => setSettings(r));
+        SettingsDAO.get().then(r => setSettings(r));
     }, [])
 
     useEffect(() => {

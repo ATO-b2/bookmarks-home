@@ -6,11 +6,13 @@ interface IconAvalEntry {
     size: number
 }
 
-let iconAvalDAO = {
-    get: async (id: string): Promise<IconAvalEntry[] | undefined> => {
-        let data = Object.values(await getBrowser().storage.local.get("icon-aval-" + id)).at(0)
+class IconAvalDAO {
+    private static readonly KEY = (id: string) => `icon-aval-${id}`
+
+    static async get(id: string): Promise<IconAvalEntry[] | undefined> {
+        let data = Object.values(await getBrowser().storage.local.get(this.KEY(id))).at(0)
         return data ? JSON.parse(data) : undefined
     }
-};
+}
 
-export {iconAvalDAO, type IconAvalEntry}
+export {IconAvalDAO, type IconAvalEntry}

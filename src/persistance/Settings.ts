@@ -28,14 +28,19 @@ export let defaultSettings: ISettings = {
     keepFoldersOpen: false
 }
 
-export function loadSettings(): Promise<ISettings> {
-    // @ts-ignore
-    let tmp: Promise<ISettings> = getBrowser().storage.sync.get(defaultSettings);
-    tmp.then(j => console.log(j))
-    return tmp;
+class SettingsDAO {
+    private static readonly KEY = 'settings'
+
+    static async get(): Promise<ISettings> {
+        let data = Object.values(await getBrowser().storage.sync.get(this.KEY)).at(0);
+        return data ? JSON.parse(data) : defaultSettings
+    }
+
+    static async put(settings: ISettings) {
+        let data = JSON.stringify(settings)
+        return getBrowser().storage.sync.set({[this.KEY]: data});
+    }
 }
 
-export function writeSettings(settings: ISettings) {
-    getBrowser().storage.sync.set(settings);
-}
+export {SettingsDAO}
 

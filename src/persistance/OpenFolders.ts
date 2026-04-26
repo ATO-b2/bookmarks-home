@@ -1,11 +1,11 @@
 import {getBrowser} from "../main.tsx";
 
 class OpenFoldersDAO {
-    private static key = "open-folders";
+    private static readonly key = "open-folders";
 
     static async get(): Promise<string[]> {
         let data = Object.values(await getBrowser().storage.local.get(this.key)).at(0);
-        return JSON.parse(data);
+        return data ? JSON.parse(data) : [];
     }
 
     static async put(value: string[]) {
