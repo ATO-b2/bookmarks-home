@@ -1,6 +1,6 @@
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import ColorThief from "colorthief";
-import {getIconInfo} from "../util/Icons.ts";
+import {getIconInfo} from "../util/IconProvider.ts";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {IconCacheDAO, IconInfo} from "../persistance/IconCache.ts";
 

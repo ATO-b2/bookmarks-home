@@ -4,10 +4,10 @@ import FolderIconOpen from "../assets/folder_open.svg?react"
 import React, {useEffect, useRef, useState} from "react";
 import DropTargets from "./DropTargets.tsx";
 import {ActiveDrag, OpenFolders, Settings} from "./Context.tsx";
-import {getBrowser} from "../main.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import FolderModal from "./FolderModal.tsx";
 import {OpenFoldersDAO} from "../persistance/OpenFolders.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function FolderButton(props: {id: string}) {
     let [settings, ] = React.useContext(Settings);
@@ -21,9 +21,7 @@ function FolderButton(props: {id: string}) {
 
     useEffect(() => {
         setFolderOpen(openFolders!.includes(props.id))
-        getBrowser().bookmarks.get(props.id).then(r => {
-            setBmData(r[0])
-        })
+        BookmarkDAO.get(props.id).then(r => setBmData(r))
     }, []);
 
     const handleFolderChange = (value: boolean) => {

@@ -1,7 +1,6 @@
 import FolderBody from "./FolderBody.tsx";
 import React, {RefObject, useEffect, useState} from "react";
-import {getBrowser} from "../main.tsx";
-import {registerBookmarkChildrenChangedListener} from "../util/bookmarkUtils.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | null>, zIndex: number, onClose: () => void}) {
     const [viewportDims, setViewportDims] = useState<undefined | {x: number, y: number}>();
@@ -17,11 +16,11 @@ function FolderModal(props: {id: string, folderRef: RefObject<HTMLDivElement | n
 
     useEffect(() => {
         let handleChildrenChange = () => {
-            getBrowser().bookmarks.getSubTree(props.id).then(r => {
-                setChildrenCount(r[0].children!.length)
+            BookmarkDAO.getChildren(props.id).then(r => {
+                setChildrenCount(r.length)
             })
         }
-        let changeListener = registerBookmarkChildrenChangedListener(props.id, handleChildrenChange)
+        let changeListener = BookmarkDAO.registerOnChildrenChanged(props.id, handleChildrenChange)
         handleChildrenChange();
 
         return () => changeListener.deregister();

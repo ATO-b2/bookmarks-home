@@ -44,6 +44,14 @@ class IconCacheDAO {
 
         return { deregister }
     }
+
+    static async clearAll() {
+        return await Promise.all(
+            (await getBrowser().storage.local.getKeys())
+                .filter(k => k.includes(this.KEY('')))
+                .map((k) => getBrowser().storage.local.remove(k))
+        )
+    }
 }
 
 export {IconCacheDAO, type IconCacheEntry, type IconInfo};

@@ -1,8 +1,8 @@
 import React, {useEffect} from "react";
 import {ActiveDrag, Settings} from "./Context.tsx";
 import CreateFolderIcon from "../assets/create_folder.svg?react"
-import {getBrowser} from "../main.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function DropTarget(props: {children: React.ReactNode, className: string, onDrop: () => void}) {
     let [activeDrag, _] = React.useContext(ActiveDrag);
@@ -40,14 +40,14 @@ function DropTargets(props: { bmData: BookmarkTreeNode, isFolder?: boolean }) {
     let [settings, ] = React.useContext(Settings);
 
     const onDropLeft = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
+        BookmarkDAO.move(activeDrag!.id, {
             parentId: props.bmData.parentId,
             index: props.bmData.index
         })
     };
 
     const onDropRight = () => {
-        getBrowser().bookmarks.move(activeDrag!.id, {
+        BookmarkDAO.move(activeDrag!.id, {
             parentId: props.bmData.parentId,
             index: (props.bmData.index! + 1)
         })
@@ -60,12 +60,11 @@ function DropTargets(props: { bmData: BookmarkTreeNode, isFolder?: boolean }) {
                 index: props.bmData.index,
                 title: "New Folder"
             }).then(r => {
-                getBrowser().bookmarks.move(props.bmData.id, {parentId: r.id});
-                getBrowser().bookmarks.move(activeDrag!.id, {parentId: r.id});
-                // location.reload()
+                BookmarkDAO.move(props.bmData.id, {parentId: r.id});
+                BookmarkDAO.move(activeDrag!.id, {parentId: r.id});
             })
         } else {
-            getBrowser().bookmarks.move(activeDrag!.id, {
+            BookmarkDAO.move(activeDrag!.id, {
                 parentId: props.bmData.id
             });
         }

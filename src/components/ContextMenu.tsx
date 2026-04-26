@@ -2,10 +2,10 @@ import DeleteIcon from "../assets/delete.svg?react";
 import EditIcon from "../assets/edit.svg?react";
 import MoreIcon from "../assets/more.svg?react";
 import React, {useEffect, useState} from "react";
-import {getBrowser} from "../main.tsx";
 import {Settings, SidebarContent} from "./Context.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import BookmarkEditor from "./BookmarkEditor.tsx";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {
     let [settings, ] = React.useContext(Settings);
@@ -34,10 +34,10 @@ function ContextMenu(props: {bmData: BookmarkTreeNode, isFolder?: boolean}) {
         if (props.isFolder) {
             let r = window.confirm("Are you sure you want to delete this folder?\nDeleting a folder will delete all of the items inside of it.").valueOf()
             if (r) {
-                getBrowser().bookmarks.removeTree(props.bmData.id);
+                BookmarkDAO.removeFolder(props.bmData.id);
             }
         } else {
-            getBrowser().bookmarks.remove(props.bmData.id);
+            BookmarkDAO.remove(props.bmData.id);
         }
     };
 

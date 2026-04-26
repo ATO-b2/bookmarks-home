@@ -1,10 +1,10 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useContext, useEffect, useState} from "react";
 import {Settings} from "./Context.tsx";
-import {getBrowser} from "../main.tsx";
 import {defaultSettings, SettingsDAO} from "../persistance/Settings.ts";
-import {getAllFolders} from "../util/bookmarkUtils.ts";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import {IconCacheDAO} from "../persistance/IconCache.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function SettingsEditor() {
     let [settings, setSettings] = useContext(Settings)
@@ -27,7 +27,7 @@ function SettingsEditor() {
     }
 
     useEffect(() => {
-        getAllFolders().then(r => setFolders(r));
+        BookmarkDAO.getAllFolders().then(r => setFolders(r));
     }, []);
 
     let resetDefaultColors = () => {
@@ -129,7 +129,7 @@ function SettingsEditor() {
         <h3>Icon Cache</h3>
         <button
             className={"default"}
-            onClick={_ => getBrowser().storage.local.clear()}
+            onClick={_ => IconCacheDAO.clearAll()}
         >
             Clear Icon Cache
         </button>

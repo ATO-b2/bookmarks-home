@@ -1,32 +1,25 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {useContext, useEffect, useState} from "react";
 import {Settings} from "./Context.tsx";
-import {getBrowser} from "../main.tsx";
 import Bookmark from "./Bookmark.tsx";
 import FolderButton from "./FolderButton.tsx";
-import {registerBookmarkChildrenChangedListener} from "../util/bookmarkUtils.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
-/**
- * A component that displays the contents of a bookmark folder
- */
 function FolderBody(props: {id: string}) {
     const [settings, ] = useContext(Settings)
 
     const [children, setChildren] = useState<BookmarkTreeNode[]>([])
 
     const updateBookmarks = () => {
-        getBrowser().bookmarks.getSubTree(props.id).then(r => {
-            let content = [...r[0].children!].sort(getSortFunction(settings.sort))
-            if (settings.foldersFirst) {
-                let [bookmarks, folders] = separateFolders(content)
-                content = folders.concat(bookmarks)
-            }
-            setChildren(content);
+        BookmarkDAO.getChildren(props.id).then(r => {
+            r.sort(getSortFunction(settings.sort))
+            r.sort(settings.foldersFirst ? foldersFirst : undefined)
+            setChildren(r);
         })
     }
 
     useEffect(() => {
-        let changeListener = registerBookmarkChildrenChangedListener(props.id, updateBookmarks)
+        let changeListener = BookmarkDAO.registerOnChildrenChanged(props.id, updateBookmarks)
         updateBookmarks();
 
         return () => changeListener.deregister();
@@ -36,7 +29,7 @@ function FolderBody(props: {id: string}) {
         updateBookmarks();
     }, [settings]);
 
-    if (children.length <= 0) return;
+    if (!children.length) return;
 
     return (
         <div className={"folder-body"}>
@@ -49,41 +42,19 @@ function FolderBody(props: {id: string}) {
     )
 }
 
-/**
- * Gets the correct sort function based on the sort setting
- * @param sort The sort setting state
- * @return The corresponding sort function
- */
-function getSortFunction(sort: "from-bookmarks" | "alphabetical" | "recent"): ((a:BookmarkTreeNode, b:BookmarkTreeNode) => number) | undefined {
+const foldersFirst =
+    (a: BookmarkTreeNode, b: BookmarkTreeNode) => (!!a.children ? 0 : 1) - (!!b.children ? 0 : 1)
+
+function getSortFunction(sort: string) {
     switch (sort) {
-        case "alphabetical": return (a, b) => {
-            return a.title.localeCompare(b.title);
-        }
-        case "recent": return (a, b) => {
-            // @ts-ignore
-            return a.dateLastUsed - b.dateLastUsed
-        }
+        case "alphabetical":
+            return (a: BookmarkTreeNode, b: BookmarkTreeNode) => a.title.localeCompare(b.title)
+        case "recent":
+            return (a: BookmarkTreeNode, b: BookmarkTreeNode) => (a as any).dateLastUsed - (b as any).dateLastUsed
+        default:
+            return undefined;
     }
 }
-
-/**
- * Separate the folders and the bookmarks into two separate lists
- * @param content THe bookmark list
- * @returns tuple in the format [bookmarks, folders]
- */
-function separateFolders(content: BookmarkTreeNode[]) {
-    let bookmarks = [];
-    let folders = [];
-    for (let bookmarkTreeNode of content) {
-        if (bookmarkTreeNode.children) {
-            folders.push(bookmarkTreeNode)
-        } else {
-            bookmarks.push(bookmarkTreeNode)
-        }
-    }
-    return [bookmarks, folders]
-}
-
 
 
 export default FolderBody;
