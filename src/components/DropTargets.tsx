@@ -59,6 +59,10 @@ function DropTargets(props: { bmData: BookmarkTreeNode, isFolder?: boolean }) {
 
     const onDropCenter = () => {
         if (props.isFolder) {
+            BookmarkDAO.move(activeDrag!.id, {
+                parentId: props.bmData.id
+            });
+        } else {
             chrome.bookmarks.create({
                 parentId: props.bmData.parentId,
                 index: props.bmData.index,
@@ -67,10 +71,6 @@ function DropTargets(props: { bmData: BookmarkTreeNode, isFolder?: boolean }) {
                 BookmarkDAO.move(props.bmData.id, {parentId: r.id});
                 BookmarkDAO.move(activeDrag!.id, {parentId: r.id});
             })
-        } else {
-            BookmarkDAO.move(activeDrag!.id, {
-                parentId: props.bmData.id
-            });
         }
     };
 

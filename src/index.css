@@ -57,6 +57,7 @@ body {
 
   > .action-area {
     z-index: 198;
+    position: fixed;
   }
 }
 
