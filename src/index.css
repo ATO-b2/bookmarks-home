@@ -78,6 +78,7 @@ body {
   margin: 10px;
   position: relative;
   border-radius: 10px;
+  isolation: isolate;
 
   &:hover {
     /*background-color: color-mix(in srgb-linear, var(--background), var(--foreground) 20%);*/
