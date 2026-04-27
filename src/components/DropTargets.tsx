@@ -28,8 +28,12 @@ function DropTarget(props: {children: React.ReactNode, className: string, onDrop
     }
 
     return (
-        <div className={props.className} style={drop ? undefined : {opacity: 0}}
-            onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+        <div
+            className={`${props.className} drop-target ${drop ? "visible" : ""}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+        >
             {props.children}
         </div>
     );

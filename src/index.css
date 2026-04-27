@@ -334,6 +334,17 @@ body {
       pointer-events: none;
     }
   }
+
+  .drop-target {
+    transition-property: opacity;
+    transition-duration: 100ms;
+    transition-timing-function: linear;
+    opacity: 0;
+
+    &.visible {
+      opacity: 100%;
+    }
+  }
 }
 
 .overflow {
