@@ -21,7 +21,13 @@ function FolderButton(props: {id: string}) {
 
     useEffect(() => {
         setFolderOpen(openFolders!.includes(props.id))
-        BookmarkDAO.get(props.id).then(r => setBmData(r))
+        let updateBookmark = () => {
+            BookmarkDAO.get(props.id).then(r => setBmData(r))
+        }
+        updateBookmark();
+        let changeListener = BookmarkDAO.registerOnChanged(props.id, updateBookmark);
+
+        return () => changeListener.deregister();
     }, []);
 
     const handleFolderChange = (value: boolean) => {

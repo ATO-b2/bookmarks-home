@@ -58,9 +58,17 @@ class BookmarkDAO {
             action();
         }
 
-        getBrowser().bookmarks.onChanged.addListener(change);
+        let moved = () => {
+            action();
+        }
 
-        let deregister = () => getBrowser().bookmarks.onChanged.removeListener(change);
+        getBrowser().bookmarks.onChanged.addListener(change);
+        getBrowser().bookmarks.onMoved.addListener(moved);
+
+        let deregister = () => {
+            getBrowser().bookmarks.onChanged.removeListener(change);
+            getBrowser().bookmarks.onMoved.removeListener(moved);
+        }
 
         return { deregister }
     }
