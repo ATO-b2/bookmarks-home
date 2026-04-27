@@ -14,7 +14,7 @@ export function getBrowser() {
 }
 
 export function getBrowserName() {
-    return typeof browser === "undefined" ? "chrome" : "firefox";
+    return typeof browser === "undefined" ? "firefox" : "chrome";
 }
 
 createRoot(document.body).render(<Context><App/></Context>)
