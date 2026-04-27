@@ -290,6 +290,7 @@ body {
       background-color: white;
       height: 50%;
       width: 4px;
+      pointer-events: none;
     }
   }
 
@@ -307,6 +308,7 @@ body {
       background-color: white;
       width: 4px;
       height: 50%;
+      pointer-events: none;
     }
   }
 
@@ -329,6 +331,7 @@ body {
       padding: 10px;
       margin-bottom: 14px;
       fill: #ffffff;
+      pointer-events: none;
     }
   }
 }
