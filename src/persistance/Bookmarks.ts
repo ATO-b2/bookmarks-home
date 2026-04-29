@@ -1,4 +1,3 @@
-import {getBrowser} from "../main.tsx";
 import MoveDestination = chrome.bookmarks.MoveDestination;
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import _OnRemovedRemoveInfo = browser.bookmarks._OnRemovedRemoveInfo;
@@ -12,32 +11,32 @@ interface OnMovedInfo {
 
 class BookmarkDAO {
     static async get(id: string) {
-        return (await getBrowser().bookmarks.get(id)).at(0)
+        return (await browser.bookmarks.get(id)).at(0)
     }
 
     static async update(id: string, newData: {}) {
-        return getBrowser().bookmarks.update(id, newData)
+        return browser.bookmarks.update(id, newData)
     }
 
     static async remove(id: string) {
-        return getBrowser().bookmarks.remove(id)
+        return browser.bookmarks.remove(id)
     }
 
     static async removeFolder(id: string) {
-        return getBrowser().bookmarks.removeTree(id)
+        return browser.bookmarks.removeTree(id)
     }
 
     static async move(id: string, destination: MoveDestination) {
-        return getBrowser().bookmarks.move(id, destination)
+        return browser.bookmarks.move(id, destination)
     }
 
     static async getChildren(id: string) {
-        let r = (await getBrowser().bookmarks.getSubTree(id)).at(0);
+        let r = (await browser.bookmarks.getSubTree(id)).at(0);
         return [...(r?.children ?? [])]
     }
 
     static async getAllFolders() {
-        let tree = await getBrowser().bookmarks.getTree();
+        let tree = await browser.bookmarks.getTree();
         let folderList: BookmarkTreeNode[] = [];
         rec(tree);
 
@@ -62,12 +61,12 @@ class BookmarkDAO {
             action();
         }
 
-        getBrowser().bookmarks.onChanged.addListener(change);
-        getBrowser().bookmarks.onMoved.addListener(moved);
+        browser.bookmarks.onChanged.addListener(change);
+        browser.bookmarks.onMoved.addListener(moved);
 
         let deregister = () => {
-            getBrowser().bookmarks.onChanged.removeListener(change);
-            getBrowser().bookmarks.onMoved.removeListener(moved);
+            browser.bookmarks.onChanged.removeListener(change);
+            browser.bookmarks.onMoved.removeListener(moved);
         }
 
         return { deregister }
@@ -87,14 +86,14 @@ class BookmarkDAO {
             action();
         }
 
-        getBrowser().bookmarks.onRemoved.addListener(remove)
-        getBrowser().bookmarks.onMoved.addListener(move)
-        getBrowser().bookmarks.onCreated.addListener(create)
+        browser.bookmarks.onRemoved.addListener(remove)
+        browser.bookmarks.onMoved.addListener(move)
+        browser.bookmarks.onCreated.addListener(create)
 
         const deregister = () => {
-            getBrowser().bookmarks.onRemoved.removeListener(remove)
-            getBrowser().bookmarks.onMoved.removeListener(move)
-            getBrowser().bookmarks.onCreated.removeListener(create)
+            browser.bookmarks.onRemoved.removeListener(remove)
+            browser.bookmarks.onMoved.removeListener(move)
+            browser.bookmarks.onCreated.removeListener(create)
         };
 
         return { deregister }

@@ -1,5 +1,3 @@
-import {getBrowser} from "../main.tsx";
-
 interface IconCacheEntry {
     icon?: IconInfo,
     setByUser: boolean,
@@ -19,13 +17,13 @@ class IconCacheDAO {
     private static changeListeners: ((id: string) => void)[] = [];
 
     static async get(id: string): Promise<IconCacheEntry | undefined> {
-        let data = Object.values(await getBrowser().storage.local.get(this.KEY(id))).at(0);
+        let data = Object.values(await browser.storage.local.get(this.KEY(id))).at(0);
         return data ? JSON.parse(data) : undefined;
     }
 
     static async put(id: string, entry: IconCacheEntry) {
         let data = JSON.stringify(entry);
-        let r = await getBrowser().storage.local.set({[this.KEY(id)]: data});
+        let r = await browser.storage.local.set({[this.KEY(id)]: data});
         this.changeListeners.forEach(ch => ch(id));
         return r;
     }
@@ -47,9 +45,9 @@ class IconCacheDAO {
 
     static async clearAll() {
         return await Promise.all(
-            (await getBrowser().storage.local.getKeys())
+            (await browser.storage.local.getKeys())
                 .filter(k => k.includes(this.KEY('')))
-                .map((k) => getBrowser().storage.local.remove(k))
+                .map((k) => browser.storage.local.remove(k))
         )
     }
 }

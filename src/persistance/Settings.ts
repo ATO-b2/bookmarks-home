@@ -1,5 +1,3 @@
-import {getBrowser} from "../main.tsx";
-
 export interface ISettings {
     sort: "from-bookmarks" | "alphabetical" | "recent",
     foldersFirst: boolean,
@@ -32,13 +30,13 @@ class SettingsDAO {
     private static readonly KEY = 'settings'
 
     static async get(): Promise<ISettings> {
-        let data = Object.values(await getBrowser().storage.sync.get(this.KEY)).at(0);
+        let data = Object.values(await browser.storage.sync.get(this.KEY)).at(0);
         return data ? JSON.parse(data) : defaultSettings
     }
 
     static async put(settings: ISettings) {
         let data = JSON.stringify(settings)
-        return getBrowser().storage.sync.set({[this.KEY]: data});
+        return browser.storage.sync.set({[this.KEY]: data});
     }
 }
 

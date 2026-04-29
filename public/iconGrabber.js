@@ -1,7 +1,3 @@
-function getBrowser() {
-    return typeof browser === "undefined" ? chrome : browser;
-}
-
 const tagTypes = ["apple-touch-icon", "shortcut icon", "icon"]
 
 function getImageDimensions(url) {
@@ -38,7 +34,7 @@ async function getBookmarkData() {
 
 getBookmarkData().then(r => {
     console.debug('[bookmarks-home] found icons:', r);
-    getBrowser().runtime.sendMessage({
+    browser.runtime.sendMessage({
         siteUrl: window.location.href,
         foundIcons: r
     });
