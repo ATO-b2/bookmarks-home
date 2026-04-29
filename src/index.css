@@ -212,6 +212,7 @@ body {
 
   input[type='color'] {
     background-color: transparent;
+    border-style: none;
   }
 
   .note {
