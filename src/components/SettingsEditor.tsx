@@ -1,33 +1,33 @@
 import RadioButtonGroup from "./RadioButtonGroup.tsx";
 import React, {useContext, useEffect, useState} from "react";
-import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {Settings} from "./Context.tsx";
-import {getBrowser} from "../main.tsx";
-import {defaultSettings, ISettings, writeSettings} from "../persistance/Settings.ts";
-import {getAllFolders} from "../util/bookmarkUtils.ts";
+import {defaultSettings, SettingsDAO} from "../persistance/Settings.ts";
+import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import {IconCacheDAO} from "../persistance/IconCache.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function SettingsEditor() {
-    const [settings, setSettings] = useContext(Settings)
-    const [folders, setFolders] = useState<BookmarkTreeNode[]>([])
+    let [settings, setSettings] = useContext(Settings)
 
-    function saveSettings(newSettings: ISettings) {
+    let [folders, setFolders] = useState<BookmarkTreeNode[]>([])
+
+    function saveSettings() {
         console.log("saved settings") // TODO toast this
-        writeSettings(newSettings);
+        SettingsDAO.put(settings);
     }
 
     function patchSettings(newItems: {}, save: boolean = true) {
-        let newSettings = {
+        setSettings(settings = {
             ...settings,
             ...newItems
-        }
-        setSettings(newSettings)
+        })
         if (save) {
-            saveSettings(newSettings);
+            saveSettings();
         }
     }
 
     useEffect(() => {
-        getAllFolders().then(r => setFolders(r));
+        BookmarkDAO.getAllFolders().then(r => setFolders(r));
     }, []);
 
     let resetDefaultColors = () => {
@@ -40,6 +40,8 @@ function SettingsEditor() {
         })
     }
 
+    let isChrome = !!window.chrome
+
     return (<>
         <h1>Settings</h1>
 
@@ -50,7 +52,9 @@ function SettingsEditor() {
         >
             <option value={"from-bookmarks"}>Custom Order</option>
             <option value={"alphabetical"}>Alphabetical</option>
-            <option value={"recent"}>Recently used</option>
+            {isChrome &&
+                (<option value={"recent"}>Recently used</option>)
+            }
         </RadioButtonGroup>
         <br/>
         <label>
@@ -69,7 +73,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.foregroundColor}
                 onChange={e => patchSettings({foregroundColor: e.target.value}, false)}
-                onBlur={() => saveSettings(settings)}
+                onBlur={saveSettings}
             />
         </label>
         <label>
@@ -78,7 +82,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.backgroundColor}
                 onChange={e => patchSettings({backgroundColor: e.target.value}, false)}
-                onBlur={() => saveSettings(settings)}
+                onBlur={saveSettings}
             />
         </label>
         <label>
@@ -87,7 +91,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.modalForegroundColor}
                 onChange={e => patchSettings({modalForegroundColor: e.target.value}, false)}
-                onBlur={() => saveSettings(settings)}
+                onBlur={saveSettings}
             />
         </label>
         <label>
@@ -96,7 +100,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.modalBackgroundColor}
                 onChange={e => patchSettings({modalBackgroundColor: e.target.value}, false)}
-                onBlur={() => saveSettings(settings)}
+                onBlur={saveSettings}
             />
         </label>
         <label>
@@ -105,7 +109,7 @@ function SettingsEditor() {
                 type={"color"}
                 value={settings.modalBorderColor}
                 onChange={e => patchSettings({modalBorderColor: e.target.value}, false)}
-                onBlur={() => saveSettings(settings)}
+                onBlur={() => saveSettings()}
             />
         </label>
         <br/>
@@ -129,7 +133,7 @@ function SettingsEditor() {
         <h3>Icon Cache</h3>
         <button
             className={"default"}
-            onClick={_ => getBrowser().storage.local.clear()}
+            onClick={_ => IconCacheDAO.clearAll()}
         >
             Clear Icon Cache
         </button>

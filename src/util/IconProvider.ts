@@ -1,10 +1,10 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import {getGoogleIcon, urlToDataUrl} from "./IconUtils.ts";
-import {iconCacheDAO, IconInfo} from "../persistance/IconCache.ts";
-import {iconAvalDAO} from "../persistance/IconAval.ts";
+import {IconCacheDAO, IconInfo} from "../persistance/IconCache.ts";
+import {IconAvalDAO} from "../persistance/IconAval.ts";
 
 async function getIconInfo(bmData: BookmarkTreeNode): Promise<IconInfo | undefined> {
-    let cache = await iconCacheDAO.get(bmData.id);
+    let cache = await IconCacheDAO.get(bmData.id);
 
     if (!cache) {
         return await bestIconFromSite(bmData) || await iconFromGoogle(bmData)
@@ -19,7 +19,7 @@ async function getIconInfo(bmData: BookmarkTreeNode): Promise<IconInfo | undefin
 }
 
 async function bestIconFromSite(bmData: BookmarkTreeNode): Promise<IconInfo | undefined> {
-    let icons_aval = (await iconAvalDAO.get(bmData.id));
+    let icons_aval = await IconAvalDAO.get(bmData.id);
     if (!icons_aval || !icons_aval.length) {
         return undefined
     }
@@ -30,7 +30,7 @@ async function bestIconFromSite(bmData: BookmarkTreeNode): Promise<IconInfo | un
         data: await urlToDataUrl(iconAval.url),
         size: iconAval.size
     }
-    iconCacheDAO.put(bmData.id, {
+    IconCacheDAO.put(bmData.id, {
         icon: iconInfo,
         setByUser: false,
         source: "site"
@@ -49,7 +49,7 @@ async function iconFromGoogle(bmData: BookmarkTreeNode): Promise<IconInfo | unde
         url: googleIcon.url,
         size: googleIcon.size
     }
-    iconCacheDAO.put(bmData.id, {
+    IconCacheDAO.put(bmData.id, {
         icon: iconInfo,
         setByUser: false,
         source: "google"

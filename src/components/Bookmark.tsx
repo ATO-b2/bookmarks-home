@@ -1,15 +1,11 @@
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
 import React, {useEffect, useState} from "react";
-import {getBrowser} from "../main.tsx";
 import {ActiveDrag, Settings} from "./Context.tsx";
 import DropTargets from "./DropTargets.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import {BookmarkIcon} from "./BookmarkIcon.tsx";
-import {registerBookmarkChangedListener} from "../util/bookmarkUtils.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
-/**
- * A component for a single bookmark
- */
 function Bookmark(props: {id: string}) {
     let [settings] = React.useContext(Settings);
     let [, setActiveDrag] = React.useContext(ActiveDrag);
@@ -18,12 +14,10 @@ function Bookmark(props: {id: string}) {
 
     useEffect(() => {
         let updateBookmark = () => {
-            getBrowser().bookmarks.get(props.id).then(r => {
-                setBmData(r[0]);
-            })
+            BookmarkDAO.get(props.id).then(r => setBmData(r))
         }
         updateBookmark();
-        let changeListener = registerBookmarkChangedListener(props.id, updateBookmark);
+        let changeListener = BookmarkDAO.registerOnChanged(props.id, updateBookmark);
 
         return () => changeListener.deregister();
     }, []);

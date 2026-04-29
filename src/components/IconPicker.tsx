@@ -10,8 +10,8 @@ import {
     hashImage,
     urlToDataUrl
 } from "../util/IconUtils.ts";
-import {iconAvalDAO, IconAvalEntry} from "../persistance/IconAval.ts";
-import {iconCacheDAO, IconCacheEntry} from "../persistance/IconCache.ts";
+import {IconAvalDAO, IconAvalEntry} from "../persistance/IconAval.ts";
+import {IconCacheDAO, IconCacheEntry} from "../persistance/IconCache.ts";
 
 interface ImageUploadInfo {
     data: string,
@@ -28,12 +28,12 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     const uploadedImagesWasInit = useRef(false)
 
     let refreshCache = () => {
-        iconCacheDAO.get(props.bmData.id).then(r => r && setIconCache(r))
+        IconCacheDAO.get(props.bmData.id).then(r => r && setIconCache(r))
     }
 
     useEffect(() => {
         refreshCache();
-        iconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
+        IconAvalDAO.get(props.bmData.id).then(r => r && setIconsAval(r))
         getGoogleIcon(props.bmData.url!).then(r => r && setGoogleIcon(r))
     }, []);
 
@@ -66,7 +66,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     };
 
     let handleSelectSite = async (i: IconAvalEntry) => {
-        await iconCacheDAO.put(props.bmData.id, {
+        await IconCacheDAO.put(props.bmData.id, {
             icon: {
                 url: i.url,
                 data: await urlToDataUrl(i.url),
@@ -79,7 +79,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     }
 
     let handleSelectLetter = async () => {
-        await iconCacheDAO.put(props.bmData.id, {
+        await IconCacheDAO.put(props.bmData.id, {
             icon: undefined,
             setByUser: true,
             source: "letter"
@@ -88,7 +88,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     }
 
     let handleSelectCustom = async (i: ImageUploadInfo) => {
-        await iconCacheDAO.put(props.bmData.id, {
+        await IconCacheDAO.put(props.bmData.id, {
             icon: {
                 data: i.data,
                 hash: i.hash,
@@ -101,7 +101,7 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
     }
 
     let handleSelectGoogle = async () => {
-        await iconCacheDAO.put(props.bmData.id, {
+        await IconCacheDAO.put(props.bmData.id, {
             icon: {
                 data: await urlToDataUrl(googleIcon!.url),
                 url: googleIcon!.url,
@@ -146,6 +146,9 @@ function IconPicker(props: {bmData: BookmarkTreeNode}) {
                 </IconOption>
             )}
         </div>
+        {!iconsAval.length && (
+            <span className={'note'}>More icons may appear after loading the page.</span>
+        )}
         <h4>Custom</h4>
         <input type={"file"} accept={"image/*"} className={"default"} name={"Upload"} onChange={handleImageUpload}/>
     </>)

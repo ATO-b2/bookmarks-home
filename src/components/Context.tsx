@@ -18,15 +18,15 @@ export const SidebarContent =
     )
 
 export const OpenFolders =
-    React.createContext<[string[], (arg0: string[]) => void]>(
-        [[], () => {}]
+    React.createContext<[string[] | null, (arg0: string[] | null) => void]>(
+        [null, () => {}]
     )
 
 function Context(props: {children: ReactNode}) {
     const [settings, setSettings] = useState<ISettings | undefined>(undefined);
     const [activeDrag, setActiveDrag] = useState<BookmarkTreeNode | null>(null);
     const [sidebarContent, setSidebarContent] = useState<ReactNode | null>(null);
-    const [openFolders, setOpenFolders] = useState<string[]>([]);
+    const [openFolders, setOpenFolders] = useState<string[] | null>(null);
 
     return (
         <Settings value={[settings!, setSettings]}>

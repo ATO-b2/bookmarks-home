@@ -1,12 +1,12 @@
-import {getBrowser} from "../main.tsx";
 import IconPicker from "./IconPicker.tsx";
 import BookmarkTreeNode = browser.bookmarks.BookmarkTreeNode;
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
 function BookmarkEditor(props: {bmData: BookmarkTreeNode}) {
 
     function updateBookmark(newData: {}) {
         console.log("updated bookmark") // TODO toast this
-        getBrowser().bookmarks.update(props.bmData.id, newData)
+        BookmarkDAO.update(props.bmData.id, newData)
     }
 
     let isFolder = !props.bmData.url

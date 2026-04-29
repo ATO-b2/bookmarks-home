@@ -4,48 +4,43 @@ import FolderIconOpen from "../assets/folder_open.svg?react"
 import React, {useEffect, useRef, useState} from "react";
 import DropTargets from "./DropTargets.tsx";
 import {ActiveDrag, OpenFolders, Settings} from "./Context.tsx";
-import {getBrowser} from "../main.tsx";
 import ContextMenu from "./ContextMenu.tsx";
 import FolderModal from "./FolderModal.tsx";
+import {OpenFoldersDAO} from "../persistance/OpenFolders.ts";
+import {BookmarkDAO} from "../persistance/Bookmarks.ts";
 
-/**
- * A component for the button used to open a bookmark folder.
- * This is themed the same as a bookmark
- */
 function FolderButton(props: {id: string}) {
     let [settings, ] = React.useContext(Settings);
     let [, setActiveDrag] = React.useContext(ActiveDrag);
     let [openFolders, setOpenFolders] = React.useContext(OpenFolders);
 
-    const [folderOpen, setFolderOpen] = useState<undefined | boolean>(undefined);
-    const [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
+    let [folderOpen, setFolderOpen] = useState<boolean>(false);
+    let [bmData, setBmData] = useState<BookmarkTreeNode | undefined>()
 
     const folderButtonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        getBrowser().storage.local.set({['keepopen-'+props.id]: folderOpen})
-
-        if (folderOpen) {
-            setOpenFolders([...openFolders, props.id]);
-        } else {
-            setOpenFolders(openFolders.filter(id => id !== props.id));
+        setFolderOpen(openFolders!.includes(props.id))
+        let updateBookmark = () => {
+            BookmarkDAO.get(props.id).then(r => setBmData(r))
         }
-    }, [folderOpen]);
+        updateBookmark();
+        let changeListener = BookmarkDAO.registerOnChanged(props.id, updateBookmark);
 
-    useEffect(() => {
-        if (settings.keepFoldersOpen) {
-            getBrowser().storage.local.get('keepopen-' + props.id).then(r => {
-                setFolderOpen(r['keepopen-' + props.id] == true);
-            })
-        } else {
-            setFolderOpen(false);
-        }
-        getBrowser().bookmarks.get(props.id).then(r => {
-            setBmData(r[0])
-        })
+        return () => changeListener.deregister();
     }, []);
 
-    const modalZIndex = 100 + openFolders.indexOf(props.id);
+    const handleFolderChange = (value: boolean) => {
+        setFolderOpen(folderOpen = value);
+        if (folderOpen) {
+            setOpenFolders(openFolders = [...openFolders!, props.id]);
+        } else {
+            setOpenFolders(openFolders = openFolders!.filter(id => id !== props.id));
+        }
+        OpenFoldersDAO.put(openFolders!);
+    }
+
+    const modalZIndex = 100 + openFolders!.indexOf(props.id);
 
     if (!bmData) return;
 
@@ -55,7 +50,7 @@ function FolderButton(props: {id: string}) {
                 zIndex: modalZIndex + 1
             } : undefined}>
                 <a
-                    onClick={() => setFolderOpen(!folderOpen)}
+                    onClick={() => handleFolderChange(!folderOpen)}
                     draggable={settings.enableDragging}
                     onDragStart={() => setActiveDrag(bmData)}
                     onDragEnd={() => setActiveDrag(null)}
@@ -73,7 +68,7 @@ function FolderButton(props: {id: string}) {
                     id={bmData.id}
                     folderRef={folderButtonRef}
                     zIndex={modalZIndex}
-                    onClose={() => setFolderOpen(false)}
+                    onClose={() => handleFolderChange(false)}
                 />
             )}
         </>

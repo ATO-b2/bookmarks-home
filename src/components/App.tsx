@@ -2,25 +2,32 @@ import React, {useContext, useEffect, useState} from "react";
 import SettingsEditor from "./SettingsEditor.tsx";
 import SettingsIcon from "../assets/settings.svg?react";
 import FolderBody from "./FolderBody.tsx";
-import {loadSettings} from "../persistance/Settings.ts";
-import {Settings, SidebarContent} from "./Context.tsx";
+import {SettingsDAO} from "../persistance/Settings.ts";
+import {OpenFolders, Settings, SidebarContent} from "./Context.tsx";
 import CloseIcon from "../assets/close.svg?react"
 import SwapIcon from "../assets/swap.svg?react"
+import {OpenFoldersDAO} from "../persistance/OpenFolders.ts";
 
-/**
- * A component for the full body of the application
- * Also stores the trees and settings
- */
+// Mounted on the body
 function App() {
     const [, setSidebarContent] = useContext(SidebarContent)
     const [settings, setSettings] = useContext(Settings);
+    const [openFolders, setOpenFolders] = useContext(OpenFolders);
 
     useEffect(() => {
-        loadSettings().then(r => setSettings(r));
+        SettingsDAO.get().then(r => setSettings(r));
     }, [])
 
     useEffect(() => {
         if (!settings) return;
+
+        if (!openFolders) {
+            if (settings.keepFoldersOpen) {
+                OpenFoldersDAO.get().then(r => setOpenFolders(r))
+            } else {
+                setOpenFolders([])
+            }
+        }
 
         const css = document.documentElement.style
         css.setProperty('--background', settings.backgroundColor);
@@ -30,7 +37,7 @@ function App() {
         css.setProperty('--modal-background', settings.modalBackgroundColor);
     }, [settings]);
 
-    if (!settings) return;
+    if (!settings || !openFolders) return;
 
     return (
         <>
